@@ -39,7 +39,7 @@ find_lto(CXX)
 # --------------------------------------------------------------------------------
 set(SOURCES          # All .cpp files in src/
         src/example.cpp
-        src/port_manager.cpp src/packet_manager.cpp)
+        src/port_manager.cpp src/packet_manager.cpp src/bear_sdk.cpp app/bearwatch/bearwatch.cpp)
 set(TESTFILES        # All .cpp files in tests/
         tests/main.cpp
         )
@@ -67,6 +67,9 @@ add_executable(main app/main.cpp)   # Name of exec. and location of file.
 target_link_libraries(main PRIVATE ${LIBRARY_NAME})  # Link the executable to library (if it uses it).
 target_set_warnings(main ENABLE ALL AS_ERROR ALL DISABLE Annoying) # Set warnings (if needed).
 target_enable_lto(main optimized)  # enable link-time-optimization if available for non-debug configurations
+
+add_executable(bearwatch app/bearwatch/bearwatch.cpp)
+target_link_libraries(bearwatch PRIVATE ${LIBRARY_NAME})
 
 # Set the properties you require, e.g. what C++ standard to use. Here applied to library and main (change as needed).
 set_target_properties(

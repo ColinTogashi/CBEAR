@@ -33,7 +33,7 @@ class PacketManager {
      *
      * Get PacketManager instance.
      */
-  static PacketManager *getPacketManager() { return unique_instance_; }
+  static PacketManager *GetPacketManager() { return unique_instance_; }
 
   /*! \brief Destruct the PacketManager.
    *
@@ -49,13 +49,13 @@ class PacketManager {
      * @param packet Packet to be transmitted.
      * @return Result of writing the packet.
      */
-  int writePacket(PortManager *port, uint8_t *packet);
+  int WritePacket(PortManager *port, uint8_t *packet);
 
   /*! \brief Receive the packet from the PortManager port.
    *
    * Receive the packet from the PortManager port.
    */
-  int readPacket(PortManager *port, uint8_t *packet);
+  int ReadPacket(PortManager *port, uint8_t *packet);
 
   /*! \brief Write and then read the packet from PortManager.
    *
@@ -91,14 +91,14 @@ class PacketManager {
      * @param sc Type of register "s" for status, "c" for config
      * @return
      */
-  int writeRegisterTX(PortManager *port,
+  int WriteRegisterTX(PortManager *port,
                       uint8_t id,
                       uint16_t address,
                       uint16_t length,
                       uint8_t *data,
                       const std::string &sc = "s");
 
-  int writeRegisterTXRX(PortManager *port,
+  int WriteRegisterTXRX(PortManager *port,
                         uint8_t id,
                         uint16_t address,
                         uint16_t length,
@@ -106,39 +106,39 @@ class PacketManager {
                         uint8_t *error = 0,
                         const std::string &sc = "s");
 
-  int writeStatusRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t data, uint8_t *error);
+  int WriteStatusRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t data, uint8_t *error);
 
-  int writeConfigRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t data, uint8_t *error);
+  int WriteConfigRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t data, uint8_t *error);
 
   /*! \brief Initially create the container for status/config packet and transmitted with PacketManager::writePacket().
    *
    * Initially create the container for status/config packet and transmitted with PacketManager::writePacket().
    */
-  int readRegisterTX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, const std::string &sc = "s");
+  int ReadRegisterTX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, const std::string &sc = "s");
 
   /*! \brief Receive the packet and parse the data in the packet.
    *
    * Receive the packet and parse the data in the packet.
    */
-  int readRegisterRX(PortManager *port, uint8_t id, uint16_t length, uint8_t *data, uint8_t *error = 0);
+  int ReadRegisterRX(PortManager *port, uint8_t id, uint16_t length, uint8_t *data, uint8_t *error = 0);
 
   /*! \brief Transmits the instruction packet and reads the data from the received packet.
    *
    * Transmits the instruction packet and reads the data from the received packet.
    */
-  int readRegisterTXRX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, uint8_t *data,
+  int ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, uint8_t *data,
                        uint8_t *error = 0,
                        const std::string &sc = "s");
 
-  int readStatusRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t *data, uint8_t *error = 0);
+  int ReadStatusRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t *data, uint8_t *error = 0);
 
-  int readStatusRegister(PortManager *port, uint8_t id, uint16_t address, float *data, uint8_t *error = 0);
+  int ReadStatusRegister(PortManager *port, uint8_t id, uint16_t address, float *data, uint8_t *error = 0);
 
-  int readConfigRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t *data, uint8_t *error = 0);
+  int ReadConfigRegister(PortManager *port, uint8_t id, uint16_t address, uint32_t *data, uint8_t *error = 0);
 
-  int readConfigRegister(PortManager *port, uint8_t id, uint16_t address, float *data, uint8_t *error = 0);
+  int ReadConfigRegister(PortManager *port, uint8_t id, uint16_t address, float *data, uint8_t *error = 0);
 
-  float hexToFloat32(uint8_t *val);
+  float HexToFloat32(uint8_t *val);
 }; // class PacketManager
 } // namespace bear
 

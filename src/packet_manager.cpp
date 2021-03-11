@@ -31,7 +31,7 @@ using namespace bear;
 
 PacketManager::PacketManager() {}
 
-int PacketManager::writePacket(PortManager *port, uint8_t *packet) {
+int PacketManager::WritePacket(PortManager *port, uint8_t *packet) {
   uint8_t checksum = 0;
   uint8_t total_pkt_len = packet[PKT_LENGTH] + 4; // [HEADER0, HEADER1, ID, LENGTH] + ...
   uint8_t write_pkt_len = 0;
@@ -62,8 +62,8 @@ int PacketManager::writePacket(PortManager *port, uint8_t *packet) {
   std::cout << std::endl;
 
   // Write the actual packet via PortManager
-  port->clearPort();
-  write_pkt_len = port->writePort(packet, total_pkt_len);
+  port->ClearPort();
+  write_pkt_len = port->WritePort(packet, total_pkt_len);
   if (total_pkt_len != write_pkt_len) // Write and written should be same
   {
     port->in_use_ = false;
@@ -73,7 +73,7 @@ int PacketManager::writePacket(PortManager *port, uint8_t *packet) {
   return COMM_SUCCESS;
 }
 
-int PacketManager::readPacket(PortManager *port, uint8_t *packet) {
+int PacketManager::ReadPacket(PortManager *port, uint8_t *packet) {
   int result{COMM_TX_FAIL};
 
   uint8_t checksum = 0;
@@ -81,7 +81,7 @@ int PacketManager::readPacket(PortManager *port, uint8_t *packet) {
   uint8_t wait_len = 6; // [HEADER0, HEADER1, ID, LENGTH, ERROR, CHKSUM]
 
   while (true) {
-    rx_len += port->readPort(&packet[rx_len], wait_len - rx_len);
+    rx_len += port->ReadPort(&packet[rx_len], wait_len - rx_len);
 
     if (rx_len >= wait_len) {
       uint8_t idx = 0;
@@ -144,7 +144,7 @@ int PacketManager::wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacke
   int result{COMM_TX_FAIL};
 
   // Write packet
-  result = writePacket(port, wpacket);
+  result = WritePacket(port, wpacket);
   if (result != COMM_SUCCESS)
     return result;
 
@@ -152,7 +152,7 @@ int PacketManager::wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacke
 
   // Read packet
   do {
-    result = readPacket(port, rpacket);
+    result = ReadPacket(port, rpacket);
   } while (result == COMM_SUCCESS && wpacket[PKT_ID] != rpacket[PKT_ID]);
 
   if (result == COMM_SUCCESS && wpacket[PKT_ID] == rpacket[PKT_ID]) {
@@ -205,7 +205,7 @@ int PacketManager::save(bear::PortManager *port, uint8_t id, uint8_t *error) {
  * [0xFF, 0xFF, MOTOR_ID, LENGTH, INSTRUCTION, DATA0, DATA1, ..., DATAN-1, CHKSUM]
  */
 /****************************************/
-int PacketManager::writeRegisterTX(bear::PortManager *port, uint8_t id, uint16_t address, uint16_t length,
+int PacketManager::WriteRegisterTX(bear::PortManager *port, uint8_t id, uint16_t address, uint16_t length,
                                    uint8_t *data, const std::string &sc) {
   // Status: Testing
 
@@ -225,7 +225,7 @@ int PacketManager::writeRegisterTX(bear::PortManager *port, uint8_t id, uint16_t
   for (uint16_t s = 0; s < length; s++)
     pkt_tx[PKT_PARAMETER0 + s + 1] = data[s];
 
-  result = writePacket(port, pkt_tx);
+  result = WritePacket(port, pkt_tx);
   port->in_use_ = false;
 
   free(pkt_tx);
@@ -233,7 +233,7 @@ int PacketManager::writeRegisterTX(bear::PortManager *port, uint8_t id, uint16_t
   return result;
 }
 
-int PacketManager::writeRegisterTXRX(bear::PortManager *port, uint8_t id, uint16_t address, uint16_t length,
+int PacketManager::WriteRegisterTXRX(bear::PortManager *port, uint8_t id, uint16_t address, uint16_t length,
                                      uint8_t *data, uint8_t *error, const std::string &sc) {
   // Status: Testing
 
@@ -260,7 +260,7 @@ int PacketManager::writeRegisterTXRX(bear::PortManager *port, uint8_t id, uint16
   return result;
 }
 
-int PacketManager::writeStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t data,
+int PacketManager::WriteStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t data,
                                        uint8_t *error) {
   /* Status: WIP
    *
@@ -277,10 +277,10 @@ int PacketManager::writeStatusRegister(bear::PortManager *port, uint8_t id, uint
 //    data_packed[2] = (data >> 16) & 0xFF;
 //    data_packed[3] = (data >> 24) & 0xFF;
 
-  return writeRegisterTXRX(port, id, address, 4, data_packed, error, "s");
+  return WriteRegisterTXRX(port, id, address, 4, data_packed, error, "s");
 }
 
-int PacketManager::writeConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t data,
+int PacketManager::WriteConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t data,
                                        uint8_t *error) {
   /* Status: WIP
    *
@@ -293,11 +293,11 @@ int PacketManager::writeConfigRegister(bear::PortManager *port, uint8_t id, uint
   data_packed[2] = (data >> 16) & 0xFF;
   data_packed[3] = (data >> 24) & 0xFF;
 
-//    int result = writeRegisterTXRX(port, id, address, 4, data_packed, error, "c");
-  return writeRegisterTX(port, id, address, 4, data_packed, "c");
+//    int result = WriteRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  return WriteRegisterTX(port, id, address, 4, data_packed, "c");
 }
 
-int PacketManager::readRegisterTX(PortManager *port, uint8_t id, uint16_t address, uint16_t length,
+int PacketManager::ReadRegisterTX(PortManager *port, uint8_t id, uint16_t address, uint16_t length,
                                   const std::string &sc) {
   // Status: Testing
   int result = COMM_TX_FAIL;
@@ -313,21 +313,21 @@ int PacketManager::readRegisterTX(PortManager *port, uint8_t id, uint16_t addres
   pkt_tx[PKT_PARAMETER0 + 0] = (uint8_t) address;
   pkt_tx[PKT_PARAMETER0 + 1] = (uint8_t) length;
 
-  result = writePacket(port, pkt_tx);
+  result = WritePacket(port, pkt_tx);
 
   // TODO: Set packet timeout
 
   return result;
 }
 
-int PacketManager::readRegisterRX(PortManager *port, uint8_t id, uint16_t length, uint8_t *data, uint8_t *error) {
+int PacketManager::ReadRegisterRX(PortManager *port, uint8_t id, uint16_t length, uint8_t *data, uint8_t *error) {
   // Status: Testing
 
   int result = COMM_RX_FAIL;
   uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
 
   do {
-    result = readPacket(port, pkt_rx);
+    result = ReadPacket(port, pkt_rx);
   } while (result == COMM_SUCCESS && pkt_rx[PKT_ID] != id);
 
   if (result == COMM_SUCCESS && pkt_rx[PKT_ID] == id) {
@@ -344,7 +344,7 @@ int PacketManager::readRegisterRX(PortManager *port, uint8_t id, uint16_t length
   return result;
 }
 
-int PacketManager::readRegisterTXRX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, uint8_t *data,
+int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t address, uint16_t length, uint8_t *data,
                                     uint8_t *error, const std::string &sc) {
   // Status: Testing
 
@@ -378,11 +378,11 @@ int PacketManager::readRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
   return result;
 }
 
-int PacketManager::readStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t *data,
+int PacketManager::ReadStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t *data,
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::readRegisterTXRX(port, id, address, 4, data_packed, error, "s");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "s");
 
   if (result == COMM_SUCCESS)
     *data = data_packed[0];
@@ -390,11 +390,11 @@ int PacketManager::readStatusRegister(bear::PortManager *port, uint8_t id, uint1
   return result;
 }
 
-int PacketManager::readStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, float *data,
+int PacketManager::ReadStatusRegister(bear::PortManager *port, uint8_t id, uint16_t address, float *data,
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::readRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
 
   if (result == COMM_SUCCESS)
     *data = *(float *) &data_packed;
@@ -402,11 +402,11 @@ int PacketManager::readStatusRegister(bear::PortManager *port, uint8_t id, uint1
   return result;
 }
 
-int PacketManager::readConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t *data,
+int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t *data,
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::readRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
 
   if (result == COMM_SUCCESS)
     *data = data_packed[0];
@@ -414,11 +414,11 @@ int PacketManager::readConfigRegister(bear::PortManager *port, uint8_t id, uint1
   return result;
 }
 
-int PacketManager::readConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, float *data,
+int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, float *data,
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::readRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
 
   if (result == COMM_SUCCESS)
     *data = *(float *) &data_packed;
