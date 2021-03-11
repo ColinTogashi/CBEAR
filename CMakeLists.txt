@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.12)
 # Set project name, version and laguages here. (change as needed)
 # Version numbers are available by including "exampleConfig.h" in 
 # the source. See exampleConfig.h.in for some more details.
-project(CPP_BOILERPLATE VERSION 1.2.3.4 LANGUAGES CXX)
+project(CBEAR VERSION 1.2.3.4 LANGUAGES CXX)
 
 
 # Options: Things you can set via commandline options to cmake (e.g. -DENABLE_LTO=[ON|OFF])
@@ -38,11 +38,11 @@ find_lto(CXX)
 #                         Locate files (change as needed).
 # --------------------------------------------------------------------------------
 set(SOURCES          # All .cpp files in src/
-    src/example.cpp
-)
+        src/example.cpp
+        src/port_manager.cpp src/packet_manager.cpp)
 set(TESTFILES        # All .cpp files in tests/
-    tests/main.cpp
-)
+        tests/main.cpp
+        )
 set(LIBRARY_NAME engine)  # Default name for the library built from src/*.cpp (change if you wish)
 
 # --------------------------------------------------------------------------------
@@ -70,10 +70,10 @@ target_enable_lto(main optimized)  # enable link-time-optimization if available 
 
 # Set the properties you require, e.g. what C++ standard to use. Here applied to library and main (change as needed).
 set_target_properties(
-    ${LIBRARY_NAME} main 
-      PROPERTIES 
-        CXX_STANDARD 17 
-        CXX_STANDARD_REQUIRED YES 
+        ${LIBRARY_NAME} main
+        PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED YES
         CXX_EXTENSIONS NO
 )
 
