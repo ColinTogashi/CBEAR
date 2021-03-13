@@ -1,6 +1,7 @@
-//
-// Created by msahn on 3/11/21.
-//
+#ifdef ENABLE_DOCTEST_IN_LIBRARY
+#define DOCTEST_CONFIG_IMPLEMENT
+#include "doctest.h"
+#endif
 
 #include <iostream>
 #include <string>
