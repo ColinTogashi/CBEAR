@@ -350,7 +350,7 @@ int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
 
   int result = COMM_TX_FAIL;
 
-  uint8_t pkt_tx[8]{};
+  uint8_t pkt_tx[6]{};
   uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
 
   pkt_tx[PKT_ID] = id;
@@ -360,7 +360,7 @@ int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
   else if (sc == "s")
     pkt_tx[PKT_INSTRUCTION] = INST_READ_STAT;
   pkt_tx[PKT_PARAMETER0 + 0] = (uint8_t) address;
-  pkt_tx[PKT_PARAMETER0 + 1] = *data;
+//  pkt_tx[PKT_PARAMETER0 + 1] = *data;
 //    pkt_tx[PKT_PARAMETER0+1] = (uint8_t) length;
 
   result = wrPacket(port, pkt_tx, pkt_rx, error);
@@ -382,7 +382,7 @@ int PacketManager::ReadStatusRegister(bear::PortManager *port, uint8_t id, uint1
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "s");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 3, data_packed, error, "s");
 
   if (result == COMM_SUCCESS)
     *data = data_packed[0];
@@ -394,7 +394,7 @@ int PacketManager::ReadStatusRegister(bear::PortManager *port, uint8_t id, uint1
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 3, data_packed, error, "s");
 
   if (result == COMM_SUCCESS)
     *data = *(float *) &data_packed;
@@ -406,7 +406,7 @@ int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint1
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 3, data_packed, error, "c");
 
   if (result == COMM_SUCCESS)
     *data = data_packed[0];
@@ -418,7 +418,7 @@ int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint1
                                       uint8_t *error) {
   uint8_t data_packed[4]{};
 
-  int result = PacketManager::ReadRegisterTXRX(port, id, address, 4, data_packed, error, "c");
+  int result = PacketManager::ReadRegisterTXRX(port, id, address, 3, data_packed, error, "c");
 
   if (result == COMM_SUCCESS)
     *data = *(float *) &data_packed;
