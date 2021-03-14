@@ -18,7 +18,7 @@
 
 // Settings
 #define DEVICENAME "/dev/ttyUSB0"
-#define DEBUGGING 0
+#define DEBUGGING 1
 
 int getch() {
   struct termios tOld, tNew;
@@ -225,7 +225,21 @@ int main(int argc, char *argv[]) {
             std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
           else
             std::cerr << "[ BearWatch ] Failed to write the byte!" << std::endl;
-        } else if (vec[2] == "s") { ;
+        } else if (vec[2] == "s") {
+          if ((std::stoi(vec[3]) > 1 && std::stoi(vec[3]) < 14) && (packetManager.WriteStatusRegister(&portManager,
+                                                                                                     std::stoi(vec[1]),
+                                                                                                     std::stoi(vec[3]),
+                                                                                                      floatToUint32(std::stof(vec[4].c_str())),
+                                                                                                     &bear_error) == COMM_SUCCESS))
+            std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
+          else if ((std::stoi(vec[3]) < 2 || (std::stoi(vec[3]) >= 14 && std::stoi(vec[3]) <= 15)) && (packetManager.WriteStatusRegister(&portManager,
+                                                                                                                                         std::stoi(vec[1]),
+                                                                                                                                         std::stoi(vec[3]),
+                                                                                                                                         std::stoi(vec[4]),
+                                                                                                                                         &bear_error) == COMM_SUCCESS))
+            std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
+          else
+            std::cerr << "[ BearWatch ] Failed to write the byte!" << std::endl;
         } else {
           std::cerr << "[ BearWatch ] Select either \"s\" or \"c\" as the type of register to write to." << std::endl;
         }
