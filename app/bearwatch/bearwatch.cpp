@@ -44,7 +44,6 @@ uint32_t floatToUint32(float input) {
   return *pInt;
 }
 
-
 int main(int argc, char *argv[]) {
   // Initialize BEAR instance
   bear::PacketManager packetManager = bear::PacketManager();
@@ -158,13 +157,10 @@ int main(int argc, char *argv[]) {
       {
         if (portManager.SetBaudRate(std::stoi(vec[1])) == false)
           std::cerr << "[ BearWatch ] Failed to change baudrate!" << std::endl;
-//                    fprintf(stderr, " Failed to change baudrate! \n");
         else
           std::cerr << "[ BearWatch ] Baudrate successfully changed to: " << std::stoi(vec[1]) << std::endl;
-//                    fprintf(stderr, " Baudrate successfully changed! [ BAUDRATE: %d ] \n", atoi(param[0]));
       } else {
         std::cerr << "[ BearWatch ] Invalid parameters, try again or type \"help\"." << std::endl;
-//                fprintf(stderr, " Invalid parameters! \n");
         continue;
       }
     } else if (vec[0] == "ping") {
@@ -227,16 +223,19 @@ int main(int argc, char *argv[]) {
             std::cerr << "[ BearWatch ] Failed to write the byte!" << std::endl;
         } else if (vec[2] == "s") {
           if ((std::stoi(vec[3]) > 1 && std::stoi(vec[3]) < 14) && (packetManager.WriteStatusRegister(&portManager,
-                                                                                                     std::stoi(vec[1]),
-                                                                                                     std::stoi(vec[3]),
-                                                                                                      floatToUint32(std::stof(vec[4].c_str())),
-                                                                                                     &bear_error) == COMM_SUCCESS))
+                                                                                                      std::stoi(vec[1]),
+                                                                                                      std::stoi(vec[3]),
+                                                                                                      floatToUint32(std::stof(
+                                                                                                          vec[4].c_str())),
+                                                                                                      &bear_error)
+              == COMM_SUCCESS))
             std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
-          else if ((std::stoi(vec[3]) < 2 || (std::stoi(vec[3]) >= 14 && std::stoi(vec[3]) <= 15)) && (packetManager.WriteStatusRegister(&portManager,
-                                                                                                                                         std::stoi(vec[1]),
-                                                                                                                                         std::stoi(vec[3]),
-                                                                                                                                         std::stoi(vec[4]),
-                                                                                                                                         &bear_error) == COMM_SUCCESS))
+          else if ((std::stoi(vec[3]) < 2 || (std::stoi(vec[3]) >= 14 && std::stoi(vec[3]) <= 15))
+              && (packetManager.WriteStatusRegister(&portManager,
+                                                    std::stoi(vec[1]),
+                                                    std::stoi(vec[3]),
+                                                    std::stoi(vec[4]),
+                                                    &bear_error) == COMM_SUCCESS))
             std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
           else
             std::cerr << "[ BearWatch ] Failed to write the byte!" << std::endl;
