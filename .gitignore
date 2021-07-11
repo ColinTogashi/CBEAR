@@ -37,3 +37,6 @@ build/
 
 .idea/
 cmake-build-debug/
+
+# Do not include external code
+external/
