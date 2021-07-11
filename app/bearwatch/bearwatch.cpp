@@ -119,15 +119,11 @@ int main(int argc, char *argv[]) {
   float read_val_f32;
   std::regex reg("\\s+");
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
   while (1) {
     std::cout << "[CMD] ";
     std::getline(std::cin, input);
-//        printf("[CMD] ");
-//        fgets(input, sizeof(input), stdin);
-
-//        char *p;
-//        if ((p == strchr(input, '\n')) != NULL) *p = '\0';
-//        fflush(stdin);
     tcflush(0, TCIFLUSH); // TODO: Check to make sure this works well
 
     if (input.length() == 0) {
@@ -138,21 +134,12 @@ int main(int argc, char *argv[]) {
     std::sregex_token_iterator iter(input.begin(), input.end(), reg, -1);
     std::sregex_token_iterator end;
     std::vector<std::string> vec(iter, end);
-//        token = strtok(input, " ");
-
-//        num_param = 0;
 
     num_param = vec.size();
 
-//        while (token != 0)
-//        {
-//            strcpy(param[num_param++], token);
-//            token = strtok(0, " ");
-//        }
-
-    if (vec[0] == "help" || vec[0] == "h" || vec[0] == "?") {
+    if (vec[0] == "help" || vec[0] == "h" || vec[0] == "?") { // Command: Help
       printf("Help manual not yet implemented.\n");
-    } else if (vec[0] == "baud") {
+    } else if (vec[0] == "baud") { // Command: Baud
       if (num_param == 2) // TODO: Make this 3 ?
       {
         if (portManager.SetBaudRate(std::stoi(vec[1])) == false)
@@ -163,7 +150,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "[ BearWatch ] Invalid parameters, try again or type \"help\"." << std::endl;
         continue;
       }
-    } else if (vec[0] == "ping") {
+    } else if (vec[0] == "ping") { // COMMAND: Ping. HOW-TO: ping mot1_id mot2_id ...
       if (num_param == 1) {
         std::cerr << "[ BearWatch ] Invalid PING attempt! Try again or type \"help\"." << std::endl;
         continue;
@@ -178,21 +165,21 @@ int main(int argc, char *argv[]) {
         else
           std::cerr << "[ BearWatch ] FAILED PING for motor ID: " << std::stoi(vec[idx]) << std::endl;
       }
-    } else if (vec[0] == "scan") {
+    } else if (vec[0] == "scan") { // COMMAND: Scan. HOW-TO: scan
       if (num_param > 1) {
         std::cerr << "[ BearWatch ] SCAN takes one parameter only! Try again or type \"help\"." << std::endl;
       } else {
         std::cerr << "[ BearWatch ] Scanning for connected BEAR modules ..." << std::endl;
-
+        int num_detected{0};
         for (int id = 1; id < 253; id++) {
-          if (packetManager.ping(&portManager, id, &bear_error) == COMM_SUCCESS)
+          if (packetManager.ping(&portManager, id, &bear_error) == COMM_SUCCESS) {
             std::cerr << "\t\tDETECTED | ID: " << id << std::endl;
-//                    else
-//                        std::cerr << "\tfailed | ID: " << id << std::endl; // Likely don't need to notify fails also.
+            num_detected++;
+          }
         }
-        // TODO: Report found total number of motors.
+        std::cerr << "# of Motors Found: " << num_detected << std::endl;
       }
-    } else if (vec[0] == "save") {
+    } else if (vec[0] == "save") { // COMMAND: Save. HOW-TO: save mot_id
       if (num_param > 2) {
         std::cerr << "[ BearWatch ] Save takes only one parameter!" << std::endl;
       } else {
@@ -284,10 +271,7 @@ int main(int argc, char *argv[]) {
     } else {
       std::cerr << "[ BearWatch ] Invalid command, retry or type 'help'." << std::endl;
     }
-
-    // To prevent annoying highlighting in CLion
-    std::cout << "DELETE NOT DELETED!" << std::endl;
-    break; // Delete later!
-  }
+  } // while(1) loop
+#pragma clang diagnostic pop
 
 }
