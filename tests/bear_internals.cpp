@@ -36,7 +36,7 @@ TEST_CASE("ping write packet test")
   uint8_t pkt_tx[6]{};
   pkt_tx[2] = 1;
   pkt_tx[3] = 2;
-  pkt_tx[4] = 0x01;
+  pkt_tx[4] = INST_PING;
   d_packetManager.BuildPacket(pkt_tx);
 
   CHECK(pkt_tx[0] == 255);
