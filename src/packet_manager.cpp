@@ -31,6 +31,26 @@ using namespace bear;
 
 PacketManager::PacketManager() {}
 
+void PacketManager::BuildPacket(uint8_t *packet) {
+  uint8_t checksum = 0;
+  uint8_t total_pkt_len = packet[PKT_LENGTH] + 4; // [HEADER0, HEADER1, ID, LENGTH] + ...
+  uint8_t write_pkt_len = 0;
+
+  // Make packet header
+  packet[PKT_HEADER0] = 0xFF;
+  packet[PKT_HEADER1] = 0xFF;
+
+  // Create checksum for the packet
+  for (uint16_t idx = 2; idx < total_pkt_len - 1; idx++)
+    checksum += packet[idx];
+  packet[total_pkt_len - 1] = ~checksum;
+
+  std::cout << "Packet to be written: " << std::endl;
+  for (int a = 0; a < total_pkt_len; a++)
+    std::cout << int(packet[a]) << " ";
+  std::cout << std::endl;
+}
+
 int PacketManager::WritePacket(PortManager *port, uint8_t *packet) {
   uint8_t checksum = 0;
   uint8_t total_pkt_len = packet[PKT_LENGTH] + 4; // [HEADER0, HEADER1, ID, LENGTH] + ...

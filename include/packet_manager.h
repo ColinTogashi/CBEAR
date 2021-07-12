@@ -41,6 +41,12 @@ class PacketManager {
    */
   virtual ~PacketManager() {}
 
+  /*! \brief Builds the packet that will be written, including the checksum.
+   *
+   * @param packet Packet to be transmitted.
+   */
+  void BuildPacket(uint8_t *packet);
+
   /*! \brief Write instruction packet via the PortManager port.
      *
      * After clearing the port via PortManager::clearPort(), the packet is transmitted
