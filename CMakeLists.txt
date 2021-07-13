@@ -68,6 +68,9 @@ target_link_libraries(main PRIVATE ${LIBRARY_NAME})  # Link the executable to li
 target_set_warnings(main ENABLE ALL AS_ERROR ALL DISABLE Annoying) # Set warnings (if needed).
 target_enable_lto(main optimized)  # enable link-time-optimization if available for non-debug configurations
 
+add_executable(raw_command app/raw_command/raw_command.cpp)
+target_link_libraries(raw_command PRIVATE ${LIBRARY_NAME})
+
 add_executable(bearwatch app/bearwatch/bearwatch.cpp)
 target_link_libraries(bearwatch PRIVATE ${LIBRARY_NAME})
 
