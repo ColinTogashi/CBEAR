@@ -14,6 +14,8 @@ class BEAR {
  public:
   BEAR(const char *portName, int baudrate);
 
+  void connect();
+
   /*! Observe the error code present in the chain.
    *
    * @return

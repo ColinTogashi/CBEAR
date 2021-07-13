@@ -63,7 +63,19 @@ BEAR::BEAR(const char *portName, int baudrate)
     : portName_{portName},
       baudrate_{baudrate},
       packetManager_{bear::PacketManager()},
-      portManager_{bear::PortManager(portName_, baudrate)} {}
+      portManager_{bear::PortManager(portName_, baudrate)} {
+  connect();
+}
+
+void BEAR::connect() {
+  if (portManager_.OpenPort()) {
+    printf("Success! Port opened!\n");
+    printf(" - Device Name: %s\n", portName_);
+    printf(" - Baudrate: %d\n\n", portManager_.GetBaudRate());
+  } else {
+    printf("Failed to open port! [%s]\n", portName_);
+  }
+}
 
 uint8_t BEAR::GetErrorCode() {
   return bear_error;
