@@ -112,7 +112,13 @@ int main(int argc, char *argv[]) {
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
   while(1) {
-    
+//    int ret_val{0};
+//    ret_val = bear_handle.ping(1);
+//    std::cout << "Ping Result: " << ret_val << std::endl;
+
+    float ret_val{0.0};
+    ret_val = bear_handle.GetPresentPosition(2);
+    std::cout << "Present Position: " << ret_val << std::endl;
   }
 #pragma clang diagnostic pop
 

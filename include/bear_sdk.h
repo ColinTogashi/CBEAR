@@ -54,17 +54,98 @@ class BEAR {
   float GetPGainId(uint8_t mID);
   bool SetPGainId(uint8_t mID, float val);
 
+  float GetIGainId(uint8_t mID);
+  bool SetIGainId(uint8_t mID, float val);
+
+  float GetDGainId(uint8_t mID);
+  bool SetDGainId(uint8_t mID, float val);
+
+  float GetPGainIq(uint8_t mID);
+  bool SetPGainIq(uint8_t mID, float val);
+
+  float GetIGainIq(uint8_t mID);
+  bool SetIGainIq(uint8_t mID, float val);
+
+  float GetDGainIq(uint8_t mID);
+  bool SetDGainIq(uint8_t mID, float val);
+
+  float GetPGainVelocity(uint8_t mID);
+  bool SetPGainVelocity(uint8_t mID, float val);
+
+  float GetIGainVelocity(uint8_t mID);
+  bool SetIGainVelocity(uint8_t mID, float val);
+
+  float GetDGainVelocity(uint8_t mID);
+  bool SetDGainVelocity(uint8_t mID, float val);
+
+  float GetPGainPosition(uint8_t mID);
+  bool SetPGainPosition(uint8_t mID, float val);
+
+  float GetIGainPosition(uint8_t mID);
+  bool SetIGainPosition(uint8_t mID, float val);
+
+  float GetDGainPosition(uint8_t mID);
+  bool SetDGainPosition(uint8_t mID, float val);
+
+  float GetPGainDirectForce(uint8_t mID);
+  bool SetPGainDirectForce(uint8_t mID, float val);
+
+  float GetIGainDirectForce(uint8_t mID);
+  bool SetIGainDirectForce(uint8_t mID, float val);
+
+  float GetDGainDirectForce(uint8_t mID);
+  bool SetDGainDirectForce(uint8_t mID, float val);
+
+  float GetLimitAccMax(uint8_t mID);
+  bool SetLimitAccMax(uint8_t mID, float val);
 
 //    int setDGainId() {};
 //    template<typename First, typename Second, typename ... Args>
 //    int setDGainId(First mID, Second val, Args &... rest);
 
-  static uint32_t floatToUint32(float input);
-
 
   /* ************************************* *
    * Getters/Setters for status registers. *
    * ************************************* */
+  uint32_t GetTorqueEnable(uint8_t mID);
+  bool SetTorqueEnable(uint8_t mID, uint32_t val);
+
+  float GetGoalId(uint8_t mID);
+  bool SetGoalId(uint8_t mID, float val);
+
+  float GetGoalIq(uint8_t mID);
+  bool SetGoalIq(uint8_t mID, float val);
+
+  float GetGoalVelocity(uint8_t mID);
+  bool SetGoalVelocity(uint8_t mID, float val);
+
+  float GetGoalPosition(uint8_t mID);
+  bool SetGoalPosition(uint8_t mID, float val);
+
+  float GetPresentId(uint8_t mID);
+
+  float GetPresentIq(uint8_t mID);
+
+  float GetPresentVelocity(uint8_t mID);
+
+  float GetPresentPosition(uint8_t mID);
+
+  float GetInputVoltage(uint8_t mID);
+
+  float GetWindingTemperature(uint8_t mID);
+
+  float GetPowerstageTemperature(uint8_t mID);
+
+  float GetICTemperature(uint8_t mID);
+
+  uint32_t GetErrorStatus(uint8_t mID);
+
+  uint32_t GetPackedIqAndTemps(uint8_t mID);
+
+  /* ****************** *
+   * Utility functions. *
+   * ****************** */
+  static uint32_t floatToUint32(float input);
 
 
  private:

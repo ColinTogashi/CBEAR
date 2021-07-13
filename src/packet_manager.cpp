@@ -45,10 +45,10 @@ void PacketManager::BuildPacket(uint8_t *packet) {
     checksum += packet[idx];
   packet[total_pkt_len - 1] = ~checksum;
 
-  std::cout << "Packet to be written: " << std::endl;
-  for (int a = 0; a < total_pkt_len; a++)
-    std::cout << int(packet[a]) << " ";
-  std::cout << std::endl;
+//  std::cout << "Packet to be written: " << std::endl;
+//  for (int a = 0; a < total_pkt_len; a++)
+//    std::cout << int(packet[a]) << " ";
+//  std::cout << std::endl;
 }
 
 int PacketManager::WritePacket(PortManager *port, uint8_t *packet) {
@@ -76,10 +76,10 @@ int PacketManager::WritePacket(PortManager *port, uint8_t *packet) {
     checksum += packet[idx];
   packet[total_pkt_len - 1] = ~checksum;
 
-  std::cout << "Packet to be written: " << std::endl;
-  for (int a = 0; a < total_pkt_len; a++)
-    std::cout << int(packet[a]) << " ";
-  std::cout << std::endl;
+//  std::cout << "Packet to be written: " << std::endl;
+//  for (int a = 0; a < total_pkt_len; a++)
+//    std::cout << int(packet[a]) << " ";
+//  std::cout << std::endl;
 
 //  uint8_t write_pkt_len = 0;
 //  uint8_t total_pkt_len = packet[PKT_LENGTH] + 4;
@@ -166,16 +166,16 @@ int PacketManager::ReadPacket(PortManager *port, uint8_t *packet) {
       }
     } else {
       // TODO: Include timeout check
-      std::cerr << "[ CBEAR ] Couldn't return status packet. Timing out..." << std::endl;
+//      std::cerr << "[ CBEAR ] Couldn't return status packet. Timing out..." << std::endl;
       continue;
     }
   }
   port->in_use_ = false;
 
-  std::cout << "Packet to be read: " << std::endl;
-  for (int a = 0; a < rx_len; a++)
-    std::cout << int(packet[a]) << " ";
-  std::cout << std::endl;
+//  std::cout << "Packet to be read: " << std::endl;
+//  for (int a = 0; a < rx_len; a++)
+//    std::cout << int(packet[a]) << " ";
+//  std::cout << std::endl;
 
   return result;
 }

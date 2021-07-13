@@ -52,7 +52,7 @@
 #define SR_POWERSTAGE_TEMPERATURE   12
 #define SR_IC_TEMPERATURE           13
 #define SR_ERROR_STATUS             14
-#define SR_WARNING_STATUS           15
+#define SR_PACKED_IQ_TEMP           15
 
 // Return Error Codes
 #define RET_ERR                     999
@@ -149,6 +149,143 @@ bool BEAR::SetPGainId(uint8_t mID, float val) {
       == COMM_SUCCESS);
 }
 
+/* ************************************* *
+ * Getters/Setters for status registers. *
+ * ************************************* */
+uint32_t BEAR::GetTorqueEnable(uint8_t mID) {
+  uint32_t retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_TORQUE_ENABLE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetTorqueEnable(uint8_t mID, uint32_t val) {
+  return (packetManager_.WriteStatusRegister(&portManager_, mID, SR_TORQUE_ENABLE, val, &bear_error) == COMM_SUCCESS);
+}
+
+float BEAR::GetGoalId(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_GOAL_ID, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetGoalId(uint8_t mID, float val) {
+  return (packetManager_.WriteStatusRegister(&portManager_, mID, SR_GOAL_ID, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetGoalIq(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_GOAL_IQ, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetGoalIq(uint8_t mID, float val) {
+  return (packetManager_.WriteStatusRegister(&portManager_, mID, SR_GOAL_IQ, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetGoalVelocity(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_GOAL_VELOCITY, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetGoalVelocity(uint8_t mID, float val) {
+  return (packetManager_.WriteStatusRegister(&portManager_, mID, SR_GOAL_VELOCITY, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetGoalPosition(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_GOAL_POSITION, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetGoalPosition(uint8_t mID, float val) {
+  return (packetManager_.WriteStatusRegister(&portManager_, mID, SR_GOAL_POSITION, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetPresentId(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_PRESENT_ID, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetPresentIq(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_PRESENT_IQ, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetPresentVelocity(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_PRESENT_VELOCITY, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetPresentPosition(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_PRESENT_POSITION, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetInputVoltage(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_INPUT_VOLTAGE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetWindingTemperature(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_WINDING_TEMPERATURE, &retVal, &bear_error)
+      != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetPowerstageTemperature(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_POWERSTAGE_TEMPERATURE, &retVal, &bear_error)
+      != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+float BEAR::GetICTemperature(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_IC_TEMPERATURE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+uint32_t BEAR::GetErrorStatus(uint8_t mID) {
+  uint32_t retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_ERROR_STATUS, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+uint32_t BEAR::GetPackedIqAndTemps(uint8_t mID) {
+  uint32_t retVal;
+  if (packetManager_.ReadStatusRegister(&portManager_, mID, SR_PACKED_IQ_TEMP, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+/* ****************** *
+ * Utility functions. *
+ * ****************** */
 uint32_t BEAR::floatToUint32(float input) {
   static_assert(sizeof(float) == sizeof(uint32_t), "Float and uint32 are not the same size in your setup!");
   auto *pInt = reinterpret_cast<uint32_t *>(&input);
