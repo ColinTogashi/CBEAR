@@ -114,7 +114,7 @@ int PacketManager::ReadPacket(PortManager *port, uint8_t *packet) {
 
       if (idx == 0) // Immediately found (i.e. packet[0], packet[1] are 0xFF, 0xFF
       {
-        if (packet[PKT_ID] > 0xFD ||                    // Unavailable ID
+        if (packet[PKT_ID] > 0xFD ||                    // Unavailable ID (max is 0xFC)
             packet[PKT_LENGTH] > RX_PKT_MAX_LEN)        // Unavailable length
         {
           // Remove first byte in packets
