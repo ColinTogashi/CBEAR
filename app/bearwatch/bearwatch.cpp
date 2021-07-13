@@ -4,15 +4,14 @@
 #endif
 
 #include <iostream>
-#include <string>
 #include <cstring>
-#include <regex>
-#include <cassert>
 #include <sched.h>
 #include <sys/mman.h>
 
 #include <cstdio>
 #include <getopt.h>
+
+#include <chrono>
 
 #include "bear_sdk.h"
 
@@ -87,38 +86,31 @@ int main(int argc, char *argv[]) {
     }
   }
 
-//  // Initialize BEAR instance
-//  bear::PacketManager packetManager = bear::PacketManager();
-//
-//  // Get the port
-//  bear::PortManager portManager = bear::PortManager(dev_name, 8000000);
-//
-//  if (!DEBUGGING) {
-//    // Open port
-//    if (portManager.OpenPort()) {
-//      printf("Success! Port opened!\n");
-//      printf(" - Device Name: %s\n", dev_name);
-//      printf(" - Baudrate: %d\n\n", portManager.GetBaudRate());
-//    } else {
-//      printf("Failed to open port! [%s]\n", dev_name);
-//      printf("Exiting...\n");
-//      return 0;
-//    }
-//  }
-
   // Initialize BEAR instance
   bear::BEAR bear_handle = bear::BEAR(dev_name, 8000000);
+
+  // Setup timing
+  using std::chrono::high_resolution_clock;
+  using std::chrono::duration_cast;
+  using std::chrono::duration;
+  using std::chrono::milliseconds;
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "EndlessLoop"
   while(1) {
-//    int ret_val{0};
-//    ret_val = bear_handle.ping(1);
-//    std::cout << "Ping Result: " << ret_val << std::endl;
-
     float ret_val{0.0};
+
+    auto t1 = high_resolution_clock::now();
     ret_val = bear_handle.GetPresentPosition(2);
-    std::cout << "Present Position: " << ret_val << std::endl;
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = t2 - t1;
+    float freq;
+    freq = 1000/ms_double.count();
+
+//    std::cout << "Present Position: " << ret_val << std::endl;
+    std::cout << "--------------------" << std::endl;
+    std::cout << "Elapsed Time in ms: " << ms_double.count() << std::endl;
+    std::cout << "Frequency: " << freq << std::endl;
   }
 #pragma clang diagnostic pop
 
