@@ -55,21 +55,21 @@ int main(int argc, char *argv[]) {
 //    memset(&param, 0, sizeof(param));
     param.sched_priority = sched_get_priority_max(SCHED_FIFO);
     if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
-      std::cerr << "[ BearWatch ] [ RT ] Failed in setting a real-time scheduler." << std::endl;
+      std::cerr << "[ RC ] [ RT ] Failed in setting a real-time scheduler." << std::endl;
     } else {
-      std::cout << "[ BearWatch ] [ RT ] Successfully setup a real-time scheduler!" << std::endl;
+      std::cout << "[ RC ] [ RT ] Successfully setup a real-time scheduler!" << std::endl;
     }
     if (mlockall(MCL_CURRENT | MCL_FUTURE) == -1) {
-      std::cerr << "[ BearWatch ] [ RT ] Failed in locking memory." << std::endl;
+      std::cerr << "[ RC ] [ RT ] Failed in locking memory." << std::endl;
     } else {
-      std::cout << "[ BearWatch ] [ RT ] Successfully locked memory!" << std::endl;
+      std::cout << "[ RC ] [ RT ] Successfully locked memory!" << std::endl;
     }
   }
 
   // Initialize BEAR instance
   bear::PacketManager packetManager = bear::PacketManager();
 
-  std::cout << "RoMeLa CBEAR BearWatch!" << std::endl;
+  std::cout << "RoMeLa CBEAR Raw Commander" << std::endl;
 
   char *dev_name = (char *) DEVICENAME;
 
