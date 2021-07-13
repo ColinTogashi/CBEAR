@@ -81,6 +81,20 @@ int PacketManager::WritePacket(PortManager *port, uint8_t *packet) {
     std::cout << int(packet[a]) << " ";
   std::cout << std::endl;
 
+//  uint8_t write_pkt_len = 0;
+//  uint8_t total_pkt_len = packet[PKT_LENGTH] + 4;
+//
+//  // Check to see if the port is in use
+//  if (port->in_use_)
+//    return COMM_PORT_BUSY;
+//  port->in_use_ = true;
+//
+//  // Check max packet length
+//  if (total_pkt_len > TX_PKT_MAX_LEN) {
+//    port->in_use_ = false;
+//    return COMM_TX_ERROR;
+//  }
+
   // Write the actual packet via PortManager
   port->ClearPort();
   write_pkt_len = port->WritePort(packet, total_pkt_len);
@@ -164,6 +178,7 @@ int PacketManager::wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacke
   int result{COMM_TX_FAIL};
 
   // Write packet
+//  BuildPacket(wpacket); // TODO: Make this modular
   result = WritePacket(port, wpacket);
   if (result != COMM_SUCCESS)
     return result;
@@ -214,7 +229,8 @@ int PacketManager::save(bear::PortManager *port, uint8_t id, uint8_t *error) {
   pkt_tx[PKT_LENGTH] = 2; // No data packets for save
   pkt_tx[PKT_INSTRUCTION] = INST_SAVE_CONFIG;
 
-  result = wrPacket(port, pkt_tx, pkt_rx, error);
+  result = WritePacket(port, pkt_tx);
+  port->in_use_ = false;
 
   return result;
 }
