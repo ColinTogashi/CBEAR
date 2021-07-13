@@ -166,10 +166,16 @@ int PacketManager::ReadPacket(PortManager *port, uint8_t *packet) {
       }
     } else {
       // TODO: Include timeout check
+      std::cerr << "[ CBEAR ] Couldn't return status packet. Timing out..." << std::endl;
       continue;
     }
   }
   port->in_use_ = false;
+
+  std::cout << "Packet to be read: " << std::endl;
+  for (int a = 0; a < rx_len; a++)
+    std::cout << int(packet[a]) << " ";
+  std::cout << std::endl;
 
   return result;
 }
@@ -217,7 +223,7 @@ int PacketManager::ping(PortManager *port, uint8_t id, uint8_t *error) {
 }
 
 int PacketManager::save(bear::PortManager *port, uint8_t id, uint8_t *error) {
-  // Status: Testing
+  // Status: Done
 
   int result(COMM_TX_FAIL);
 
@@ -386,7 +392,8 @@ int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
 
   int result = COMM_TX_FAIL;
 
-  uint8_t pkt_tx[6]{};
+//  uint8_t pkt_tx[7]{};
+  uint8_t *pkt_tx = (uint8_t *) malloc(length + 6);
   uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
 
   pkt_tx[PKT_ID] = id;
@@ -401,14 +408,15 @@ int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
 
   result = wrPacket(port, pkt_tx, pkt_rx, error);
   if (result == COMM_SUCCESS) {
-    if (error != 0) {
+    if (*error != 128) {
       *error = (uint8_t) pkt_rx[PKT_ERROR];
     }
-    for (uint16_t s = 0; s < length; s++) {
+    for (uint16_t s = 0; s < length+1; s++) {
       data[s] = pkt_rx[PKT_PARAMETER0 + s];
     }
   }
 
+  free(pkt_tx);
   free(pkt_rx);
 
   return result;
