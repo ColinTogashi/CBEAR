@@ -311,6 +311,7 @@ int PacketManager::WriteStatusRegister(bear::PortManager *port, uint8_t id, uint
 //    if (address < 3)
   uint8_t data_packed[4] = {DXL_LOBYTE(DXL_LOWORD(data)), DXL_HIBYTE(DXL_LOWORD(data)), DXL_LOBYTE(DXL_HIWORD(data)),
                             DXL_HIBYTE(DXL_HIWORD(data))}; // TODO: Create little-endian creating functionality
+
 //    else
 //        uint8_t data_packed[4]
 //    uint8_t data_packed[4];
@@ -319,7 +320,8 @@ int PacketManager::WriteStatusRegister(bear::PortManager *port, uint8_t id, uint
 //    data_packed[2] = (data >> 16) & 0xFF;
 //    data_packed[3] = (data >> 24) & 0xFF;
 
-  return WriteRegisterTXRX(port, id, address, 4, data_packed, error, "s");
+//  return WriteRegisterTXRX(port, id, address, 4, data_packed, error, "s");
+  return WriteRegisterTX(port, id, address, 4, data_packed, "s");
 }
 
 int PacketManager::WriteConfigRegister(bear::PortManager *port, uint8_t id, uint16_t address, uint32_t data,
@@ -328,7 +330,6 @@ int PacketManager::WriteConfigRegister(bear::PortManager *port, uint8_t id, uint
    *
    * - [ ] Create little-endian creating functionality
    */
-//    uint8_t data_packed[4] = { DXL_LOBYTE(DXL_LOWORD(data)), DXL_HIBYTE(DXL_LOWORD(data)), DXL_LOBYTE(DXL_HIWORD(data)), DXL_HIBYTE(DXL_HIWORD(data)) }; // TODO: Create little-endian creating functionality
   uint8_t data_packed[4];
   data_packed[0] = (data >> 0) & 0xFF;
   data_packed[1] = (data >> 8) & 0xFF;
@@ -411,7 +412,7 @@ int PacketManager::ReadRegisterTXRX(PortManager *port, uint8_t id, uint16_t addr
     if (*error != 128) {
       *error = (uint8_t) pkt_rx[PKT_ERROR];
     }
-    for (uint16_t s = 0; s < length+1; s++) {
+    for (uint16_t s = 0; s < length + 1; s++) {
       data[s] = pkt_rx[PKT_PARAMETER0 + s];
     }
   }
