@@ -190,7 +190,7 @@ int PacketManager::ping(PortManager *port, uint8_t id, uint8_t *error) {
 
   // Create packet containers
   uint8_t pkt_tx[6]{};
-  uint8_t pkt_rx[10]{};
+  uint8_t pkt_rx[RX_PKT_MAX_LEN]{};
 
   pkt_tx[PKT_ID] = id;
   pkt_tx[PKT_LENGTH] = 2; // No data packets for ping
@@ -208,7 +208,7 @@ int PacketManager::save(bear::PortManager *port, uint8_t id, uint8_t *error) {
 
   // Create packet containers
   uint8_t pkt_tx[6]{};
-  uint8_t pkt_rx[6]{};
+  uint8_t pkt_rx[RX_PKT_MAX_LEN]{};
 
   pkt_tx[PKT_ID] = id;
   pkt_tx[PKT_LENGTH] = 2; // No data packets for save
