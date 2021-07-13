@@ -80,7 +80,7 @@ int BEAR::save(uint8_t mID) {
 /* ******************************************** *
  * Getters/Setters for configuration registers. *
  * ******************************************** */
-uint32_t BEAR::getID(uint8_t mID) {
+uint32_t BEAR::GetID(uint8_t mID) {
   uint32_t retVal;
   if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_ID, &retVal, &bear_error) != COMM_SUCCESS)
     retVal = RET_ERR;
@@ -91,7 +91,7 @@ bool BEAR::SetID(uint8_t mID, uint32_t val) {
   return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_ID, val, &bear_error) == COMM_SUCCESS);
 }
 
-uint32_t BEAR::getMode(uint8_t mID) {
+uint32_t BEAR::GetMode(uint8_t mID) {
   uint32_t retVal;
   if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_MODE, &retVal, &bear_error) != COMM_SUCCESS)
     retVal = RET_ERR;
@@ -102,7 +102,7 @@ bool BEAR::SetMode(uint8_t mID, uint32_t val) {
   return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_MODE, val, &bear_error) == COMM_SUCCESS);
 }
 
-uint32_t BEAR::getBaudrate(uint8_t mID) {
+uint32_t BEAR::GetBaudrate(uint8_t mID) {
   uint32_t retVal;
   if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_BAUDRATE, &retVal, &bear_error) != COMM_SUCCESS)
     retVal = RET_ERR;

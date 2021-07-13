@@ -37,13 +37,13 @@ class BEAR {
   /* ******************************************** *
    * Getters/Setters for configuration registers. *
    * ******************************************** */
-  uint32_t getID(uint8_t mID);
+  uint32_t GetID(uint8_t mID);
   bool SetID(uint8_t mID, uint32_t val);
 
-  uint32_t getMode(uint8_t mID);
+  uint32_t GetMode(uint8_t mID);
   bool SetMode(uint8_t mID, uint32_t val);
 
-  uint32_t getBaudrate(uint8_t mID);
+  uint32_t GetBaudrate(uint8_t mID);
   bool SetBaudrate(uint8_t mID, uint32_t val);
 
   float GetHomingOffset(uint8_t mID);
@@ -57,6 +57,8 @@ class BEAR {
 //    template<typename First, typename Second, typename ... Args>
 //    int setDGainId(First mID, Second val, Args &... rest);
 
+  static uint32_t floatToUint32(float input);
+
 
   /* ************************************* *
    * Getters/Setters for status registers. *
@@ -69,8 +71,6 @@ class BEAR {
   uint8_t bear_error;
   bear::PacketManager packetManager_;
   bear::PortManager portManager_;
-
-  uint32_t floatToUint32(float input);
 }; // class BEAR
 } // namespace BEAR
 

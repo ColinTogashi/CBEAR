@@ -8,6 +8,8 @@
 #include <cstring>
 #include <regex>
 #include <cassert>
+#include <sched.h>
+#include <sys/mman.h>
 
 #include <cstdio>
 #include <getopt.h>
@@ -19,6 +21,7 @@
 // Settings
 #define DEVICENAME "/dev/ttyUSB0"
 #define DEBUGGING 1
+#define REALTIME 1
 
 int getch() {
   struct termios tOld, tNew;
@@ -38,13 +41,31 @@ void usage(char *progname) {
   printf(" [ -d | --device ] Port to open.\n");
 }
 
+/*
 uint32_t floatToUint32(float input) {
   static_assert(sizeof(float) == sizeof(uint32_t), "Float and uint32 are not the same size in your setup!");
   auto *pInt = reinterpret_cast<uint32_t *>(&input);
   return *pInt;
 }
+ */
 
 int main(int argc, char *argv[]) {
+  if (REALTIME) {
+    struct sched_param param;
+//    memset(&param, 0, sizeof(param));
+    param.sched_priority = sched_get_priority_max(SCHED_FIFO);
+    if (sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
+      std::cerr << "[ BearWatch ] [ RT ] Failed in setting a real-time scheduler." << std::endl;
+    } else {
+      std::cout << "[ BearWatch ] [ RT ] Successfully setup a real-time scheduler!" << std::endl;
+    }
+    if (mlockall(MCL_CURRENT | MCL_FUTURE) == -1) {
+      std::cerr << "[ BearWatch ] [ RT ] Failed in locking memory." << std::endl;
+    } else {
+      std::cout << "[ BearWatch ] [ RT ] Successfully locked memory!" << std::endl;
+    }
+  }
+
   // Initialize BEAR instance
   bear::PacketManager packetManager = bear::PacketManager();
 
@@ -197,7 +218,7 @@ int main(int argc, char *argv[]) {
           if ((std::stoi(vec[3]) > 2) && (packetManager.WriteConfigRegister(&portManager,
                                                                             std::stoi(vec[1]),
                                                                             std::stoi(vec[3]),
-                                                                            floatToUint32(std::stof(vec[4].c_str())),
+                                                                            bear::BEAR::floatToUint32(std::stof(vec[4].c_str())),
                                                                             &bear_error) == COMM_SUCCESS))
             std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
           else if ((std::stoi(vec[3]) < 3) && (packetManager.WriteConfigRegister(&portManager,
@@ -212,8 +233,9 @@ int main(int argc, char *argv[]) {
           if ((std::stoi(vec[3]) > 1 && std::stoi(vec[3]) < 14) && (packetManager.WriteStatusRegister(&portManager,
                                                                                                       std::stoi(vec[1]),
                                                                                                       std::stoi(vec[3]),
-                                                                                                      floatToUint32(std::stof(
-                                                                                                          vec[4].c_str())),
+                                                                                                      bear::BEAR::floatToUint32(
+                                                                                                          std::stof(
+                                                                                                              vec[4].c_str())),
                                                                                                       &bear_error)
               == COMM_SUCCESS))
             std::cerr << "[ BearWatch ] Succesfully wrote the byte!" << std::endl;
