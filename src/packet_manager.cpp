@@ -470,3 +470,56 @@ int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint1
 
   return result;
 }
+
+void PacketManager::BulkCommunication(PortManager *port,
+                                      std::list<uint8_t> mIDs,
+                                      std::list<uint16_t> reg_read,
+                                      std::list<uint16_t> reg_write,
+                                      std::list<uint8_t> data_write) {
+  uint8_t checksum = 0;
+
+  int num_motors = mIDs.size();
+  int num_read_regs = reg_read.size();
+  int num_write_regs = reg_write.size();
+  int num_total_regs = num_write_regs | num_read_regs << 4;
+
+  int pkt_length = 3 + num_read_regs + num_write_regs + num_motors + num_motors * 4 + 1;
+
+  // If there are data to write
+  if (num_write_regs == 0) {
+
+  } else {
+
+  }
+
+
+
+//  int pkt_length = 3 + num_read_regs + num_write_regs + num_motors + num_write_regs * 4 * num_motors + 1;
+}
+//
+//  uint8_t *pkt_tx = (uint8_t *) malloc(list_addr.size() + 6);
+//  uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
+//  uint8_t pkt_len = list_addr.size() + 2;
+//
+//  pkt_tx[PKT_HEADER0] = 0xFF;
+//  pkt_tx[PKT_HEADER1] = 0xFF;
+//  if (sc == "c")
+//    pkt_tx[PKT_INSTRUCTION] = INST_READ_CONFIG;
+//  else if (sc == "s")
+//    pkt_tx[PKT_INSTRUCTION] = INST_READ_STAT;
+//
+//  uint8_t checksum = 0;
+//  checksum = mID +
+//}
+
+uint8_t PacketManager::GenerateChecksum(uint8_t mID,
+                                        uint8_t pkt_len,
+                                        uint8_t instruction,
+                                        std::list<uint8_t> list_addr) {
+  uint8_t checksum = 0;
+  checksum = mID + pkt_len + instruction;
+  for (auto const& adx : list_addr) {
+    checksum += adx;
+  }
+  return ~checksum;
+}
