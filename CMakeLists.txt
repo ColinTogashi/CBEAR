@@ -39,7 +39,8 @@ find_lto(CXX)
 # --------------------------------------------------------------------------------
 set(SOURCES          # All .cpp files in src/
         src/example.cpp
-        src/port_manager.cpp src/packet_manager.cpp src/bear_sdk.cpp)
+        src/port_manager.cpp src/packet_manager.cpp src/bear_sdk.cpp
+        src/utils/loop_time_stats.cpp)
 set(TESTFILES        # All .cpp files in tests/
         tests/main.cpp
         )
