@@ -6,6 +6,7 @@
 #define CBEAR_INCLUDE_PACKET_MANAGER_H_
 
 #include <string>
+#include <list>
 #include "port_manager.h"
 
 // Communication results
@@ -20,6 +21,7 @@
 #define INST_READ_CONFIG 0x04
 #define INST_WRITE_CONFIG 0x05
 #define INST_SAVE_CONFIG 0x06
+#define INST_BULK_COMM 0x12
 #define COMM_TX_ERROR -2000
 
 namespace bear {
@@ -63,12 +65,16 @@ class PacketManager {
    */
   int ReadPacket(PortManager *port, uint8_t *packet);
 
+  int ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t *packet);
+
   /*! \brief Write and then read the packet from PortManager.
    *
    * Write and then read the packet from PortManager using a combination of
    * PacketManager::writePacket() and PacketManager::readPacket().
    */
   int wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacket, uint8_t *error);
+
+  int wrBulkPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacket, uint8_t *error);
 
   /*! \brief Ping BEAR.
    *
@@ -144,7 +150,37 @@ class PacketManager {
 
   int ReadConfigRegister(PortManager *port, uint8_t id, uint16_t address, float *data, uint8_t *error = 0);
 
+  int ReadBulkData(PortManager *port);
+
+  /*! \brief Writing to / reading from multiple status registers of one or more BAER actuators in a single communication frame.
+   *
+   * @param port PortManager
+   * @param mIDs List of motor IDs
+   * @param addr_read List of registers to read from
+   * @param addr_write List of registers to write to
+   * @param data_write List of data to write
+   */
+  int BulkCommunication(PortManager *port,
+                        std::list<uint8_t> mIDs,
+                        std::list<uint8_t> addr_read,
+                        std::list<uint8_t> addr_write,
+                        std::list<uint8_t> data_write,
+                        std::list<std::list<float>> &ret_list,
+                        uint8_t *error);
+
   float HexToFloat32(uint8_t *val);
+
+  void GenerateBulkPacket(uint8_t *wpacket,
+                          std::list<uint8_t> &mIDs,
+                          uint8_t &pkt_len,
+                          uint8_t &num_motors,
+                          uint8_t &num_total_regs,
+                          std::list<uint8_t> &addr_read,
+                          std::list<uint8_t> &addr_write,
+                          std::list<uint8_t> &data,
+                          uint8_t checksum);
+
+  uint8_t GenerateChecksum(uint8_t mID, uint8_t pkt_len, uint8_t instruction, std::list<uint8_t> list_addr);
 }; // class PacketManager
 } // namespace bear
 

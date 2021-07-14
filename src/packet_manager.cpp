@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string>
 #include <iostream>
+#include <numeric>
 #include "packet_manager.h"
 
 #define TX_PKT_MAX_LEN 250
@@ -18,14 +19,17 @@
 #define PKT_INSTRUCTION     4
 #define PKT_ERROR           4
 #define PKT_PARAMETER0      5
+#define PKT_BULK_N_MOTORS   5
+#define PKT_BULK_N_STAT_RW  6
+#define PKT_BULK_READ_REG_0 7
 
 // Convenient Endian macros
-#define DXL_MAKEWORD(a, b)  ((uint16_t)(((uint8_t)(((uint64_t)(a)) & 0xff)) | ((uint16_t)((uint8_t)(((uint64_t)(b)) & 0xff))) << 8))
-#define DXL_MAKEDWORD(a, b) ((uint32_t)(((uint16_t)(((uint64_t)(a)) & 0xffff)) | ((uint32_t)((uint16_t)(((uint64_t)(b)) & 0xffff))) << 16))
-#define DXL_LOWORD(l)       ((uint16_t)(((uint64_t)(l)) & 0xffff))
-#define DXL_HIWORD(l)       ((uint16_t)((((uint64_t)(l)) >> 16) & 0xffff))
-#define DXL_LOBYTE(w)       ((uint8_t)(((uint64_t)(w)) & 0xff))
-#define DXL_HIBYTE(w)       ((uint8_t)((((uint64_t)(w)) >> 8) & 0xff))
+#define GEN_MAKEWORD(a, b)  ((uint16_t)(((uint8_t)(((uint64_t)(a)) & 0xff)) | ((uint16_t)((uint8_t)(((uint64_t)(b)) & 0xff))) << 8))
+#define GEN_MAKEDWORD(a, b) ((uint32_t)(((uint16_t)(((uint64_t)(a)) & 0xffff)) | ((uint32_t)((uint16_t)(((uint64_t)(b)) & 0xffff))) << 16))
+#define GEN_LOWORD(l)       ((uint16_t)(((uint64_t)(l)) & 0xffff))
+#define GEN_HIWORD(l)       ((uint16_t)((((uint64_t)(l)) >> 16) & 0xffff))
+#define GEN_LOBYTE(w)       ((uint8_t)(((uint64_t)(w)) & 0xff))
+#define GEN_HIBYTE(w)       ((uint8_t)((((uint64_t)(w)) >> 8) & 0xff))
 
 using namespace bear;
 
@@ -180,6 +184,49 @@ int PacketManager::ReadPacket(PortManager *port, uint8_t *packet) {
   return result;
 }
 
+int PacketManager::ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t *packet) {
+  // Read bulk packet (manual for now) // TODO: Fix to adaptive
+  uint8_t checksum = 0;
+  uint8_t rx_len = 0;
+  uint8_t wait_len = 4; // [HEADER0, HEADER1, ID, LENGTH, ..., ...]
+
+  while (true) {
+    rx_len += port->ReadPort(&packet[rx_len], wait_len - rx_len);
+
+    if (rx_len >= wait_len) {
+      uint8_t idx = 0;
+
+      // Identify packet header
+      for (idx = 0; idx < (rx_len - 1); idx++) {
+        if (packet[idx] == 0xFF && packet[idx + 1] == 0xFF)
+          break;
+      }
+
+      if (idx == 0) {
+        break;
+      } else {
+        for (uint16_t s = 0; s < rx_len - idx; s++)
+          packet[s] = packet[idx + s];
+        rx_len -= idx;
+      }
+    }
+  }
+
+  uint8_t len_single_pkt = packet[PKT_LENGTH];
+  uint8_t len_total_pkt =
+      PKT_LENGTH + 1 + len_single_pkt + (4 + len_single_pkt) * (num_motors - 1); // remaining incoming packets
+
+  while (true) {
+    rx_len += port->ReadPort(&packet[rx_len], len_total_pkt - rx_len);
+    if (rx_len >= len_total_pkt)
+      break;
+  }
+
+  port->in_use_ = false;
+
+  return COMM_SUCCESS;
+}
+
 int PacketManager::wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacket, uint8_t *error) {
   int result{COMM_TX_FAIL};
 
@@ -192,6 +239,28 @@ int PacketManager::wrPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacke
   // TODO: Include timeout?
 
   // Read packet
+  do {
+    result = ReadPacket(port, rpacket);
+  } while (result == COMM_SUCCESS && wpacket[PKT_ID] != rpacket[PKT_ID]);
+
+  if (result == COMM_SUCCESS && wpacket[PKT_ID] == rpacket[PKT_ID]) {
+    if (error != 0)
+      *error = (uint8_t) rpacket[PKT_ERROR];
+  }
+
+  return result;
+}
+
+int PacketManager::wrBulkPacket(PortManager *port, uint8_t *wpacket, uint8_t *rpacket, uint8_t *error) {
+  int result{COMM_TX_FAIL};
+
+  // Write bulk packet
+//  BuildPacket(wpacket); // TODO: Make this modular
+  result = WritePacket(port, wpacket);
+  if (result != COMM_SUCCESS)
+    return result;
+
+  // TODO: Include timeout?
   do {
     result = ReadPacket(port, rpacket);
   } while (result == COMM_SUCCESS && wpacket[PKT_ID] != rpacket[PKT_ID]);
@@ -309,8 +378,8 @@ int PacketManager::WriteStatusRegister(bear::PortManager *port, uint8_t id, uint
    * - [ ] Create little-endian creating functionality
    */
 //    if (address < 3)
-  uint8_t data_packed[4] = {DXL_LOBYTE(DXL_LOWORD(data)), DXL_HIBYTE(DXL_LOWORD(data)), DXL_LOBYTE(DXL_HIWORD(data)),
-                            DXL_HIBYTE(DXL_HIWORD(data))}; // TODO: Create little-endian creating functionality
+  uint8_t data_packed[4] = {GEN_LOBYTE(GEN_LOWORD(data)), GEN_HIBYTE(GEN_LOWORD(data)), GEN_LOBYTE(GEN_HIWORD(data)),
+                            GEN_HIBYTE(GEN_HIWORD(data))}; // TODO: Create little-endian creating functionality
 
 //    else
 //        uint8_t data_packed[4]
@@ -471,28 +540,110 @@ int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint1
   return result;
 }
 
-void PacketManager::BulkCommunication(PortManager *port,
-                                      std::list<uint8_t> mIDs,
-                                      std::list<uint16_t> reg_read,
-                                      std::list<uint16_t> reg_write,
-                                      std::list<uint8_t> data_write) {
+int PacketManager::BulkCommunication(PortManager *port,
+                                     std::list<uint8_t> mIDs,
+                                     std::list<uint8_t> addr_read,
+                                     std::list<uint8_t> addr_write,
+                                     std::list<uint8_t> data_write,
+                                     std::list<std::list<float>> &ret_list,
+                                     uint8_t *error) {
+  int result{COMM_TX_FAIL};
+
   uint8_t checksum = 0;
 
-  int num_motors = mIDs.size();
-  int num_read_regs = reg_read.size();
-  int num_write_regs = reg_write.size();
-  int num_total_regs = num_write_regs | num_read_regs << 4;
+  uint8_t num_motors = mIDs.size();
+  uint8_t num_read_regs = addr_read.size();
+  uint8_t num_write_regs = addr_write.size();
+  uint8_t num_total_regs = num_write_regs | num_read_regs << 4;
 
-  int pkt_length = 3 + num_read_regs + num_write_regs + num_motors + num_motors * 4 + 1;
+  uint8_t pkt_length = 3 + num_read_regs + num_write_regs + num_motors + 4 * num_motors * num_write_regs + 1;
 
-  // If there are data to write
+  // create packet containers
+  uint8_t *pkt_tx = (uint8_t *) malloc(pkt_length + 4);
+
+  uint8_t sum_addr_read = std::accumulate(addr_read.begin(), addr_read.end(), 0);
+  uint8_t sum_addr_write = std::accumulate(addr_write.begin(), addr_write.end(), 0);
+  uint8_t sum_data = std::accumulate(data_write.begin(), data_write.end(), 0);
+  uint8_t sum_mIDs = std::accumulate(mIDs.begin(), mIDs.end(), 0);
+
+  // Check if there are data to write
   if (num_write_regs == 0) {
-
+    std::list<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_mIDs};
+    checksum = GenerateChecksum(0xFE, pkt_length, INST_BULK_COMM, data_pkt);
+    GenerateBulkPacket(pkt_tx,
+                       mIDs,
+                       pkt_length,
+                       num_motors,
+                       num_total_regs,
+                       addr_read,
+                       addr_write,
+                       data_write,
+                       checksum);
   } else {
-
+    std::list<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_addr_write, sum_data, sum_mIDs};
+    checksum = GenerateChecksum(0xFE, pkt_length, INST_BULK_COMM, data_pkt);
+    GenerateBulkPacket(pkt_tx,
+                       mIDs,
+                       pkt_length,
+                       num_motors,
+                       num_total_regs,
+                       addr_read,
+                       addr_write,
+                       data_write,
+                       checksum);
   }
 
+//  // Print write packet
+//  std::cout << "Packet to be written: " << std::endl;
+//  for (int a = 0; a < pkt_length + 4; a++)
+//    std::cout << int(pkt_tx[a]) << " ";
+//  std::cout << std::endl;
 
+  // Check if there are data to read
+  if (num_read_regs == 0) {
+    result = WritePacket(port, pkt_tx);
+    port->in_use_ = false;
+    free(pkt_tx);
+    return result;
+  } else { // custom R/W
+    uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
+    result = WritePacket(port, pkt_tx);
+    result = ReadBulkPacket(port, num_motors, pkt_rx);
+
+    uint8_t len_ret_pkt = pkt_rx[PKT_LENGTH] + 4;
+
+    std::list<float> ret_single;
+    for (uint8_t ii = 0; ii < num_motors; ii++) {
+      uint8_t m_offset = ii * len_ret_pkt;
+
+      ret_single.push_back(pkt_rx[m_offset + PKT_ID]);
+      uint8_t err_single = pkt_rx[m_offset + PKT_ERROR];
+      if (err_single != 128) { // if not normal, cut the list short
+        ret_single.push_back(err_single);
+        continue;
+      }
+
+      for (uint8_t jj = 0; jj < num_read_regs; jj++) {
+        uint8_t data_raw[4]{};
+
+        for (uint16_t s = 0; s < 4; s++) {
+          data_raw[s] = pkt_rx[m_offset + PKT_PARAMETER0 + 4 * jj + s];
+        }
+
+        float *data = nullptr;
+        data = (float *) &data_raw;
+        ret_single.push_back(*data);
+      }
+      ret_single.push_back(err_single);
+
+      ret_list.push_back(ret_single);
+      ret_single.erase(ret_single.begin(), ret_single.end());
+    }
+
+    free(pkt_tx);
+    free(pkt_rx);
+    return result;
+  }
 
 //  int pkt_length = 3 + num_read_regs + num_write_regs + num_motors + num_write_regs * 4 * num_motors + 1;
 }
@@ -512,13 +663,74 @@ void PacketManager::BulkCommunication(PortManager *port,
 //  checksum = mID +
 //}
 
+void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
+                                       std::list<uint8_t> &mIDs,
+                                       uint8_t &pkt_len,
+                                       uint8_t &num_motors,
+                                       uint8_t &num_total_regs,
+                                       std::list<uint8_t> &addr_read,
+                                       std::list<uint8_t> &addr_write,
+                                       std::list<uint8_t> &data,
+                                       uint8_t checksum) {
+  wpacket[PKT_HEADER0] = 0xFF;
+  wpacket[PKT_HEADER1] = 0xFF;
+  wpacket[PKT_ID] = 0xFE;
+  wpacket[PKT_LENGTH] = pkt_len;
+  wpacket[PKT_INSTRUCTION] = INST_BULK_COMM;
+  wpacket[PKT_BULK_N_MOTORS] = num_motors;
+  wpacket[PKT_BULK_N_STAT_RW] = num_total_regs;
+  wpacket[4 + pkt_len - 1] = checksum;
+
+  int idx = 0;
+  for (auto const &it : addr_read) {
+    wpacket[PKT_BULK_READ_REG_0 + idx] = it;
+    idx++;
+  }
+
+  if (!addr_write.empty()) { // when there is something to write
+    int pkt_write_0 = PKT_BULK_READ_REG_0 + addr_read.size();
+    int jdx = 0;
+    for (auto const &it : addr_write) {
+      wpacket[pkt_write_0 + jdx] = it;
+      jdx++;
+    }
+
+    int pkt_motdata_0 = pkt_write_0 + addr_write.size();
+    auto mit = mIDs.begin();
+    auto dit = data.begin();
+    for (uint8_t kdx = 0; kdx < mIDs.size(); kdx++) {
+      wpacket[pkt_motdata_0 + kdx] = *mit;
+      std::advance(mit, 1);
+
+      wpacket[pkt_motdata_0 + kdx + 1] = *dit;
+      std::advance(dit, 1);
+
+      wpacket[pkt_motdata_0 + kdx + 2] = *dit;
+      std::advance(dit, 1);
+
+      wpacket[pkt_motdata_0 + kdx + 3] = *dit;
+      std::advance(dit, 1);
+
+      wpacket[pkt_motdata_0 + kdx + 4] = *dit;
+      std::advance(dit, 1);
+    }
+  } else {
+    int pkt_mot_0 = PKT_BULK_READ_REG_0 + addr_read.size();
+    int mdx = 0;
+    for (auto const &it : mIDs) {
+      wpacket[pkt_mot_0 + mdx] = it;
+      mdx++;
+    }
+  }
+}
+
 uint8_t PacketManager::GenerateChecksum(uint8_t mID,
                                         uint8_t pkt_len,
                                         uint8_t instruction,
                                         std::list<uint8_t> list_addr) {
   uint8_t checksum = 0;
   checksum = mID + pkt_len + instruction;
-  for (auto const& adx : list_addr) {
+  for (auto const &adx : list_addr) {
     checksum += adx;
   }
   return ~checksum;

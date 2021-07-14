@@ -283,6 +283,16 @@ uint32_t BEAR::GetPackedIqAndTemps(uint8_t mID) {
   return retVal;
 }
 
+std::list<std::list<float>> BEAR::BulkRead(std::list<uint8_t> mIDs, std::list<uint8_t> read_add) {
+  std::list<std::list<float>> retList;
+  std::list<uint8_t> empty_list;
+//  if (packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_list, empty_list, &bear_error)
+//      != COMM_SUCCESS)
+//    retList = {RET_ERR};
+  packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_list, empty_list, retList, &bear_error);
+  return retList;
+}
+
 /* ****************** *
  * Utility functions. *
  * ****************** */

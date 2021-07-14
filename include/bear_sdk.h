@@ -142,11 +142,12 @@ class BEAR {
 
   uint32_t GetPackedIqAndTemps(uint8_t mID);
 
+  std::list<std::list<float>> BulkRead(std::list<uint8_t> mIDs, std::list<uint8_t> read_add);
+
   /* ****************** *
    * Utility functions. *
    * ****************** */
   static uint32_t floatToUint32(float input);
-
 
  private:
   const char *portName_;
