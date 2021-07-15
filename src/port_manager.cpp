@@ -35,6 +35,10 @@ void PortManager::ClearPort() {
   tcflush(socket_fd, TCIFLUSH);
 }
 
+void PortManager::ClearIOPort() {
+  tcflush(socket_fd, TCIOFLUSH);
+}
+
 void PortManager::SetPortName(const char *port_name) {
   strcpy(port_name_, port_name);
 }

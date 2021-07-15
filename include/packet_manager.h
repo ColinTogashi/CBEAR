@@ -15,6 +15,9 @@
 #define COMM_TX_FAIL -1001
 #define COMM_RX_FAIL -1002
 #define COMM_RX_CORRUPT -1003
+
+#define MAX_COMM_ATTEMPT 10
+
 #define INST_PING 0x01
 #define INST_READ_STAT 0x02
 #define INST_WRITE_STAT 0x03
@@ -155,21 +158,35 @@ class PacketManager {
   /*! \brief Writing to / reading from multiple status registers of one or more BAER actuators in a single communication frame.
    *
    * @param port PortManager
-   * @param mIDs List of motor IDs
-   * @param addr_read List of registers to read from
-   * @param addr_write List of registers to write to
-   * @param data_write List of data to write
+   * @param mIDs Vector of motor IDs
+   * @param addr_read Vector of registers to read from
+   * @param addr_write Vector of registers to write to
+   * @param data_write Vector of data to write
+   * @param ret_vec Vector of values to be returned through
+   * @return
    */
   int BulkCommunication(PortManager *port,
                         std::vector<uint8_t> mIDs,
                         std::vector<uint8_t> addr_read,
                         std::vector<uint8_t> addr_write,
-                        std::vector<float> data_write,
+                        std::vector<std::vector<uint32_t>> data_write,
                         std::vector<std::vector<float>> &ret_vec,
                         uint8_t *error);
 
   float HexToFloat32(uint8_t *val);
 
+  /*! \brief Generate a packet specific for bulk read and write.
+   *
+   * @param wpacket Packet that will be built to write
+   * @param mIDs Vector of motor IDs
+   * @param pkt_len Length of the packet
+   * @param num_motors Number of motors
+   * @param num_total_regs Total number of registers to read/write
+   * @param addr_read Vector of addresses to read from
+   * @param addr_write Vector of addresses to write to
+   * @param data Vector of data to write
+   * @param checksum Checksum
+   */
   void GenerateBulkPacket(uint8_t *wpacket,
                           std::vector<uint8_t> &mIDs,
                           uint8_t &pkt_len,
@@ -177,10 +194,10 @@ class PacketManager {
                           uint8_t &num_total_regs,
                           std::vector<uint8_t> &addr_read,
                           std::vector<uint8_t> &addr_write,
-                          std::vector<uint8_t> &data,
+                          std::vector<std::vector<uint8_t>> &data,
                           uint8_t checksum);
 
-  uint8_t GenerateChecksum(uint8_t mID, uint8_t pkt_len, uint8_t instruction, std::vector<uint8_t> list_addr);
+  uint8_t GenerateChecksum(uint8_t mID, uint8_t pkt_len, uint8_t instruction, const std::vector<uint8_t>& addr_vec);
 }; // class PacketManager
 } // namespace bear
 

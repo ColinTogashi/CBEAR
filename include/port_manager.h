@@ -48,6 +48,12 @@ class PortManager {
    */
   void ClearPort();
 
+  /*! \brief Clear input and output port.
+   *
+   * Clear input and output port.
+   */
+  void ClearIOPort();
+
   /*! \brief Set port name.
    *
    * Set port name.

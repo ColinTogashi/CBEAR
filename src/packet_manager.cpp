@@ -2,6 +2,8 @@
 // Created by msahn on 3/11/21.
 //
 
+#include <chrono>
+#include <thread>
 #include <stdlib.h>
 #include <string>
 #include <iostream>
@@ -22,6 +24,8 @@
 #define PKT_BULK_N_MOTORS   5
 #define PKT_BULK_N_STAT_RW  6
 #define PKT_BULK_READ_REG_0 7
+
+#define MAX_TICKER_COUNT    200
 
 // Convenient Endian macros
 #define GEN_MAKEWORD(a, b)  ((uint16_t)(((uint8_t)(((uint64_t)(a)) & 0xff)) | ((uint16_t)((uint8_t)(((uint64_t)(b)) & 0xff))) << 8))
@@ -216,14 +220,19 @@ int PacketManager::ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t
   uint8_t len_total_pkt =
       PKT_LENGTH + 1 + len_single_pkt + (4 + len_single_pkt) * (num_motors - 1); // remaining incoming packets
 
+  int ticker = 0;
   while (true) {
     rx_len += port->ReadPort(&packet[rx_len], len_total_pkt - rx_len);
     if (rx_len >= len_total_pkt)
       break;
+    ++ticker;
+    if (ticker > MAX_TICKER_COUNT) {
+      port->in_use_ = false;
+      return COMM_RX_FAIL;
+    }
   }
 
   port->in_use_ = false;
-
   return COMM_SUCCESS;
 }
 
@@ -544,7 +553,7 @@ int PacketManager::BulkCommunication(PortManager *port,
                                      std::vector<uint8_t> mIDs,
                                      std::vector<uint8_t> addr_read,
                                      std::vector<uint8_t> addr_write,
-                                     std::vector<float> data_write,
+                                     std::vector<std::vector<uint32_t>> data_write,
                                      std::vector<std::vector<float>> &ret_vec,
                                      uint8_t *error) {
   int result{COMM_TX_FAIL};
@@ -558,14 +567,34 @@ int PacketManager::BulkCommunication(PortManager *port,
 
   uint8_t pkt_length = 3 + num_read_regs + num_write_regs + num_motors + 4 * num_motors * num_write_regs + 1;
 
-  // TODO: convert write float uint8_t
+  std::vector<std::vector<uint8_t>> data_write_hex_all;
+  std::vector<uint8_t> data_write_hex_single;
+  for (uint8_t odx = 0; odx < data_write.size(); ++odx) {
+    for (uint8_t idx = 0; idx < data_write[odx].size(); ++idx) {
+      uint8_t data_i[4] = {GEN_LOBYTE(GEN_LOWORD(data_write[odx][idx])),
+                           GEN_HIBYTE(GEN_LOWORD(data_write[odx][idx])),
+                           GEN_LOBYTE(GEN_HIWORD(data_write[odx][idx])),
+                           GEN_HIBYTE(GEN_HIWORD(data_write[odx][idx]))};
+
+      data_write_hex_single.push_back(data_i[0]);
+      data_write_hex_single.push_back(data_i[1]);
+      data_write_hex_single.push_back(data_i[2]);
+      data_write_hex_single.push_back(data_i[3]);
+    }
+    data_write_hex_all.push_back(data_write_hex_single);
+    data_write_hex_single.erase(data_write_hex_single.begin(), data_write_hex_single.end());
+  }
 
   // create packet containers
   uint8_t *pkt_tx = (uint8_t *) malloc(pkt_length + 4);
 
   uint8_t sum_addr_read = std::accumulate(addr_read.begin(), addr_read.end(), 0);
   uint8_t sum_addr_write = std::accumulate(addr_write.begin(), addr_write.end(), 0);
-  uint8_t sum_data = std::accumulate(data_write.begin(), data_write.end(), 0);
+//  uint8_t sum_data = std::accumulate(data_write_hex.begin(), data_write_hex.end(), 0);
+  uint8_t sum_data =
+      std::accumulate(data_write_hex_all.cbegin(), data_write_hex_all.cend(), 0, [](auto lhs, const auto &rhs) {
+        return std::accumulate(rhs.cbegin(), rhs.cend(), lhs);
+      });
   uint8_t sum_mIDs = std::accumulate(mIDs.begin(), mIDs.end(), 0);
 
   // Check if there are data to write
@@ -579,7 +608,7 @@ int PacketManager::BulkCommunication(PortManager *port,
                        num_total_regs,
                        addr_read,
                        addr_write,
-                       data_write,
+                       data_write_hex_all,
                        checksum);
   } else {
     std::vector<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_addr_write, sum_data, sum_mIDs};
@@ -591,28 +620,50 @@ int PacketManager::BulkCommunication(PortManager *port,
                        num_total_regs,
                        addr_read,
                        addr_write,
-                       data_write,
+                       data_write_hex_all,
                        checksum);
   }
 
-//  // Print write packet
-//  std::cout << "Packet to be written: " << std::endl;
-//  for (int a = 0; a < pkt_length + 4; a++)
-//    std::cout << int(pkt_tx[a]) << " ";
-//  std::cout << std::endl;
+  // Print write packet
+  std::cout << "TX Packet: " << std::endl;
+  for (int a = 0; a < pkt_length + 4; a++)
+    std::cout << int(pkt_tx[a]) << " ";
+  std::cout << std::endl;
 
-  // Check if there are data to read
+  // Check if there are data to read after writing the packet
   if (num_read_regs == 0) {
     result = WritePacket(port, pkt_tx);
     port->in_use_ = false;
     free(pkt_tx);
     return result;
   } else { // custom R/W
-    uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
-    result = WritePacket(port, pkt_tx);
-    result = ReadBulkPacket(port, num_motors, pkt_rx);
+    uint8_t *pkt_rx;
+    int mdx = 0;
+    while (mdx < MAX_COMM_ATTEMPT) {
+//      port->ClearPort();
+      port->ClearIOPort();
+      pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
+      result = WritePacket(port, pkt_tx);
+      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      result = ReadBulkPacket(port, num_motors, pkt_rx);
+      if (result == COMM_SUCCESS)
+        break;
+      free(pkt_rx);
+      ++mdx;
+      std::cout << "[ ! ] Trying again!" << std::endl;
+    }
+    if (mdx == MAX_COMM_ATTEMPT) {
+      result = COMM_RX_FAIL;
+      return result;
+    }
 
     uint8_t len_ret_pkt = pkt_rx[PKT_LENGTH] + 4;
+
+    // Print return packet
+    std::cout << "RX Packet: " << std::endl;
+    for (int a = 0; a < len_ret_pkt * num_motors; ++a)
+      std::cout << int(pkt_rx[a]) << " ";
+    std::cout << std::endl;
 
     std::vector<float> ret_single;
     for (uint8_t ii = 0; ii < num_motors; ii++) {
@@ -622,6 +673,7 @@ int PacketManager::BulkCommunication(PortManager *port,
       uint8_t err_single = pkt_rx[m_offset + PKT_ERROR];
       if (err_single != 128) { // if not normal, cut the list short
         ret_single.push_back(err_single);
+        std::cout << "Error in the return packet!" << std::endl;
         continue;
       }
 
@@ -632,7 +684,7 @@ int PacketManager::BulkCommunication(PortManager *port,
           data_raw[s] = pkt_rx[m_offset + PKT_PARAMETER0 + 4 * jj + s];
         }
 
-        float *data = nullptr;
+        float *data;
         data = (float *) &data_raw;
         ret_single.push_back(*data);
       }
@@ -646,24 +698,7 @@ int PacketManager::BulkCommunication(PortManager *port,
     free(pkt_rx);
     return result;
   }
-
-//  int pkt_length = 3 + num_read_regs + num_write_regs + num_motors + num_write_regs * 4 * num_motors + 1;
 }
-//
-//  uint8_t *pkt_tx = (uint8_t *) malloc(list_addr.size() + 6);
-//  uint8_t *pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
-//  uint8_t pkt_len = list_addr.size() + 2;
-//
-//  pkt_tx[PKT_HEADER0] = 0xFF;
-//  pkt_tx[PKT_HEADER1] = 0xFF;
-//  if (sc == "c")
-//    pkt_tx[PKT_INSTRUCTION] = INST_READ_CONFIG;
-//  else if (sc == "s")
-//    pkt_tx[PKT_INSTRUCTION] = INST_READ_STAT;
-//
-//  uint8_t checksum = 0;
-//  checksum = mID +
-//}
 
 void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
                                        std::vector<uint8_t> &mIDs,
@@ -672,7 +707,7 @@ void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
                                        uint8_t &num_total_regs,
                                        std::vector<uint8_t> &addr_read,
                                        std::vector<uint8_t> &addr_write,
-                                       std::vector<uint8_t> &data,
+                                       std::vector<std::vector<uint8_t>> &data,
                                        uint8_t checksum) {
   wpacket[PKT_HEADER0] = 0xFF;
   wpacket[PKT_HEADER1] = 0xFF;
@@ -698,23 +733,13 @@ void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
     }
 
     int pkt_motdata_0 = pkt_write_0 + addr_write.size();
-    auto mit = mIDs.begin();
-    auto dit = data.begin();
-    for (uint8_t kdx = 0; kdx < mIDs.size(); kdx++) {
-      wpacket[pkt_motdata_0 + kdx] = *mit;
-      std::advance(mit, 1);
+    for (uint8_t kdx = 0; kdx < mIDs.size(); ++kdx) {
+      uint8_t kkdx = kdx * (data[kdx].size() + 1);
+      wpacket[pkt_motdata_0 + kkdx] = mIDs[kdx];
 
-      wpacket[pkt_motdata_0 + kdx + 1] = *dit;
-      std::advance(dit, 1);
-
-      wpacket[pkt_motdata_0 + kdx + 2] = *dit;
-      std::advance(dit, 1);
-
-      wpacket[pkt_motdata_0 + kdx + 3] = *dit;
-      std::advance(dit, 1);
-
-      wpacket[pkt_motdata_0 + kdx + 4] = *dit;
-      std::advance(dit, 1);
+      for (uint8_t ddx = 0; ddx < data[kdx].size(); ++ddx) {
+        wpacket[pkt_motdata_0 + kkdx + ddx + 1] = data[kdx][ddx];
+      }
     }
   } else {
     int pkt_mot_0 = PKT_BULK_READ_REG_0 + addr_read.size();
@@ -729,11 +754,12 @@ void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
 uint8_t PacketManager::GenerateChecksum(uint8_t mID,
                                         uint8_t pkt_len,
                                         uint8_t instruction,
-                                        std::vector<uint8_t> list_addr) {
+                                        const std::vector<uint8_t> &addr_vec) {
   uint8_t checksum = 0;
   checksum = mID + pkt_len + instruction;
-  for (auto const &adx : list_addr) {
+  for (auto const &adx : addr_vec) {
     checksum += adx;
   }
+//  checksum = mID + pkt_len + instruction + std::accumulate(addr_vec.begin(), addr_vec.end(), 0); // TODO: Compare timing
   return ~checksum;
 }
