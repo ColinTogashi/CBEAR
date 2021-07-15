@@ -14,6 +14,8 @@
 #include <chrono>
 
 #include "bear_sdk.h"
+#include "bear_macro.h"
+#include "utils/loop_time_stats.h"
 
 // Settings
 #define DEVICENAME "/dev/ttyUSB0"
@@ -95,9 +97,11 @@ int main(int argc, char *argv[]) {
   using std::chrono::duration;
   using std::chrono::milliseconds;
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "EndlessLoop"
-  while(1) {
+  /*
+  loop_time_stats l("stats.txt",loop_time_stats::output_mode::fileout_only);
+  for (int idx = 0; idx < 100000; idx++) {
+    l.loop_starting_point();
+
     float ret_val{0.0};
 
     auto t1 = high_resolution_clock::now();
@@ -105,12 +109,61 @@ int main(int argc, char *argv[]) {
     auto t2 = high_resolution_clock::now();
     duration<double, std::milli> ms_double = t2 - t1;
     float freq;
-    freq = 1000/ms_double.count();
+    freq = 1000 / ms_double.count();
 
-//    std::cout << "Present Position: " << ret_val << std::endl;
     std::cout << "--------------------" << std::endl;
     std::cout << "Elapsed Time in ms: " << ms_double.count() << std::endl;
     std::cout << "Frequency: " << freq << std::endl;
+  }
+  l.store_loop_time_stats();
+  // */
+
+
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
+  while (1) {
+    std::vector<uint8_t> mIDs{1, 2};
+    std::vector<uint8_t> write_add{bear_macro::GOAL_VELOCITY, bear_macro::GOAL_POSITION};
+    std::vector<uint8_t> read_add{bear_macro::PRESENT_POSITION, bear_macro::PRESENT_VELOCITY, bear_macro::INPUT_VOLTAGE};
+    std::vector<std::vector<float>> data{{0.3, 0.5},
+                                         {0.6, 0.7}};
+
+    auto t1 = high_resolution_clock::now();
+//    bool write_status;
+//    write_status = bear_handle.BulkWrite(mIDs, write_add, data);
+
+//    std::vector<std::vector<float>> ret_vec;
+//    ret_vec = bear_handle.BulkRead(mIDs, read_add);
+
+    std::vector<std::vector<float>> ret_vec_rw;
+    ret_vec_rw = bear_handle.BulkReadWrite(mIDs, read_add, write_add, data);
+
+    auto t2 = high_resolution_clock::now();
+    duration<double, std::milli> ms_double = t2 - t1;
+
+
+
+//    float ret_val{0.0};
+//    auto t1 = high_resolution_clock::now();
+//    ret_val = bear_handle.GetPresentPosition(2);
+//    auto t2 = high_resolution_clock::now();
+//    duration<double, std::milli> ms_double = t2 - t1;
+
+    float freq;
+    freq = 1000 / ms_double.count();
+
+    std::cout << "Return Nested Vector: " << std::endl;
+    for (const auto &out_vec: ret_vec_rw) {
+      for (const auto &in_vec: out_vec) {
+        std::cout << in_vec << " ";
+      }
+      std::cout << std::endl;
+    }
+//    std::cout << "Present Position: " << ret_val << std::endl;
+    std::cout << "Elapsed Time in ms: " << ms_double.count() << std::endl;
+    std::cout << "Frequency: " << freq << std::endl;
+    std::cout << "--------------------" << std::endl;
   }
 #pragma clang diagnostic pop
 
