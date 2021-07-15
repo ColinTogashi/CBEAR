@@ -624,11 +624,11 @@ int PacketManager::BulkCommunication(PortManager *port,
                        checksum);
   }
 
-  // Print write packet
-  std::cout << "TX Packet: " << std::endl;
-  for (int a = 0; a < pkt_length + 4; a++)
-    std::cout << int(pkt_tx[a]) << " ";
-  std::cout << std::endl;
+//  // Print write packet
+//  std::cout << "TX Packet: " << std::endl;
+//  for (int a = 0; a < pkt_length + 4; a++)
+//    std::cout << int(pkt_tx[a]) << " ";
+//  std::cout << std::endl;
 
   // Check if there are data to read after writing the packet
   if (num_read_regs == 0) {
@@ -640,8 +640,8 @@ int PacketManager::BulkCommunication(PortManager *port,
     uint8_t *pkt_rx;
     int mdx = 0;
     while (mdx < MAX_COMM_ATTEMPT) {
-//      port->ClearPort();
-      port->ClearIOPort();
+      port->ClearPort();
+//      port->ClearIOPort();
       pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
       result = WritePacket(port, pkt_tx);
       std::this_thread::sleep_for(std::chrono::nanoseconds(100));
@@ -659,11 +659,11 @@ int PacketManager::BulkCommunication(PortManager *port,
 
     uint8_t len_ret_pkt = pkt_rx[PKT_LENGTH] + 4;
 
-    // Print return packet
-    std::cout << "RX Packet: " << std::endl;
-    for (int a = 0; a < len_ret_pkt * num_motors; ++a)
-      std::cout << int(pkt_rx[a]) << " ";
-    std::cout << std::endl;
+//    // Print return packet
+//    std::cout << "RX Packet: " << std::endl;
+//    for (int a = 0; a < len_ret_pkt * num_motors; ++a)
+//      std::cout << int(pkt_rx[a]) << " ";
+//    std::cout << std::endl;
 
     std::vector<float> ret_single;
     for (uint8_t ii = 0; ii < num_motors; ii++) {
