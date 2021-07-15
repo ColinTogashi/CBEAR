@@ -6,6 +6,7 @@
 #define CBEAR_INCLUDE_BEAR_SDK_H_
 
 #include <string>
+#include <vector>
 #include "packet_manager.h"
 #include "port_manager.h"
 
@@ -142,7 +143,9 @@ class BEAR {
 
   uint32_t GetPackedIqAndTemps(uint8_t mID);
 
-  std::list<std::list<float>> BulkRead(std::list<uint8_t> mIDs, std::list<uint8_t> read_add);
+  std::vector<std::vector<float>> BulkRead(std::vector<uint8_t> mIDs, std::vector<uint8_t> read_add);
+
+//  void BulkWrite(std::list<uint8_t> mIDs, std::list<uint8_t> write_add, std::list<float> data);
 
   /* ****************** *
    * Utility functions. *

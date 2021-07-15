@@ -541,11 +541,11 @@ int PacketManager::ReadConfigRegister(bear::PortManager *port, uint8_t id, uint1
 }
 
 int PacketManager::BulkCommunication(PortManager *port,
-                                     std::list<uint8_t> mIDs,
-                                     std::list<uint8_t> addr_read,
-                                     std::list<uint8_t> addr_write,
-                                     std::list<uint8_t> data_write,
-                                     std::list<std::list<float>> &ret_list,
+                                     std::vector<uint8_t> mIDs,
+                                     std::vector<uint8_t> addr_read,
+                                     std::vector<uint8_t> addr_write,
+                                     std::vector<float> data_write,
+                                     std::vector<std::vector<float>> &ret_vec,
                                      uint8_t *error) {
   int result{COMM_TX_FAIL};
 
@@ -558,6 +558,8 @@ int PacketManager::BulkCommunication(PortManager *port,
 
   uint8_t pkt_length = 3 + num_read_regs + num_write_regs + num_motors + 4 * num_motors * num_write_regs + 1;
 
+  // TODO: convert write float uint8_t
+
   // create packet containers
   uint8_t *pkt_tx = (uint8_t *) malloc(pkt_length + 4);
 
@@ -568,7 +570,7 @@ int PacketManager::BulkCommunication(PortManager *port,
 
   // Check if there are data to write
   if (num_write_regs == 0) {
-    std::list<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_mIDs};
+    std::vector<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_mIDs};
     checksum = GenerateChecksum(0xFE, pkt_length, INST_BULK_COMM, data_pkt);
     GenerateBulkPacket(pkt_tx,
                        mIDs,
@@ -580,7 +582,7 @@ int PacketManager::BulkCommunication(PortManager *port,
                        data_write,
                        checksum);
   } else {
-    std::list<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_addr_write, sum_data, sum_mIDs};
+    std::vector<uint8_t> data_pkt{num_motors, num_total_regs, sum_addr_read, sum_addr_write, sum_data, sum_mIDs};
     checksum = GenerateChecksum(0xFE, pkt_length, INST_BULK_COMM, data_pkt);
     GenerateBulkPacket(pkt_tx,
                        mIDs,
@@ -612,7 +614,7 @@ int PacketManager::BulkCommunication(PortManager *port,
 
     uint8_t len_ret_pkt = pkt_rx[PKT_LENGTH] + 4;
 
-    std::list<float> ret_single;
+    std::vector<float> ret_single;
     for (uint8_t ii = 0; ii < num_motors; ii++) {
       uint8_t m_offset = ii * len_ret_pkt;
 
@@ -636,7 +638,7 @@ int PacketManager::BulkCommunication(PortManager *port,
       }
       ret_single.push_back(err_single);
 
-      ret_list.push_back(ret_single);
+      ret_vec.push_back(ret_single);
       ret_single.erase(ret_single.begin(), ret_single.end());
     }
 
@@ -664,13 +666,13 @@ int PacketManager::BulkCommunication(PortManager *port,
 //}
 
 void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
-                                       std::list<uint8_t> &mIDs,
+                                       std::vector<uint8_t> &mIDs,
                                        uint8_t &pkt_len,
                                        uint8_t &num_motors,
                                        uint8_t &num_total_regs,
-                                       std::list<uint8_t> &addr_read,
-                                       std::list<uint8_t> &addr_write,
-                                       std::list<uint8_t> &data,
+                                       std::vector<uint8_t> &addr_read,
+                                       std::vector<uint8_t> &addr_write,
+                                       std::vector<uint8_t> &data,
                                        uint8_t checksum) {
   wpacket[PKT_HEADER0] = 0xFF;
   wpacket[PKT_HEADER1] = 0xFF;
@@ -727,7 +729,7 @@ void PacketManager::GenerateBulkPacket(uint8_t *wpacket,
 uint8_t PacketManager::GenerateChecksum(uint8_t mID,
                                         uint8_t pkt_len,
                                         uint8_t instruction,
-                                        std::list<uint8_t> list_addr) {
+                                        std::vector<uint8_t> list_addr) {
   uint8_t checksum = 0;
   checksum = mID + pkt_len + instruction;
   for (auto const &adx : list_addr) {

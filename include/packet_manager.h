@@ -6,7 +6,7 @@
 #define CBEAR_INCLUDE_PACKET_MANAGER_H_
 
 #include <string>
-#include <list>
+#include <vector>
 #include "port_manager.h"
 
 // Communication results
@@ -161,26 +161,26 @@ class PacketManager {
    * @param data_write List of data to write
    */
   int BulkCommunication(PortManager *port,
-                        std::list<uint8_t> mIDs,
-                        std::list<uint8_t> addr_read,
-                        std::list<uint8_t> addr_write,
-                        std::list<uint8_t> data_write,
-                        std::list<std::list<float>> &ret_list,
+                        std::vector<uint8_t> mIDs,
+                        std::vector<uint8_t> addr_read,
+                        std::vector<uint8_t> addr_write,
+                        std::vector<float> data_write,
+                        std::vector<std::vector<float>> &ret_vec,
                         uint8_t *error);
 
   float HexToFloat32(uint8_t *val);
 
   void GenerateBulkPacket(uint8_t *wpacket,
-                          std::list<uint8_t> &mIDs,
+                          std::vector<uint8_t> &mIDs,
                           uint8_t &pkt_len,
                           uint8_t &num_motors,
                           uint8_t &num_total_regs,
-                          std::list<uint8_t> &addr_read,
-                          std::list<uint8_t> &addr_write,
-                          std::list<uint8_t> &data,
+                          std::vector<uint8_t> &addr_read,
+                          std::vector<uint8_t> &addr_write,
+                          std::vector<uint8_t> &data,
                           uint8_t checksum);
 
-  uint8_t GenerateChecksum(uint8_t mID, uint8_t pkt_len, uint8_t instruction, std::list<uint8_t> list_addr);
+  uint8_t GenerateChecksum(uint8_t mID, uint8_t pkt_len, uint8_t instruction, std::vector<uint8_t> list_addr);
 }; // class PacketManager
 } // namespace bear
 

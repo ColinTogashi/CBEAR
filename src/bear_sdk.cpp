@@ -283,15 +283,23 @@ uint32_t BEAR::GetPackedIqAndTemps(uint8_t mID) {
   return retVal;
 }
 
-std::list<std::list<float>> BEAR::BulkRead(std::list<uint8_t> mIDs, std::list<uint8_t> read_add) {
-  std::list<std::list<float>> retList;
-  std::list<uint8_t> empty_list;
-//  if (packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_list, empty_list, &bear_error)
+std::vector<std::vector<float>> BEAR::BulkRead(std::vector<uint8_t> mIDs, std::vector<uint8_t> read_add) {
+  std::vector<std::vector<float>> ret_vec;
+  std::vector<uint8_t> empty_vec;
+  std::vector<float> empty_vec_float;
+//  if (packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_vec, empty_vec, &bear_error)
 //      != COMM_SUCCESS)
-//    retList = {RET_ERR};
-  packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_list, empty_list, retList, &bear_error);
-  return retList;
+//    ret_vec = {RET_ERR};
+  packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_vec, empty_vec_float, ret_vec, &bear_error);
+  return ret_vec;
 }
+
+//void BEAR::BulkWrite(std::list<uint8_t> mIDs, std::list<uint8_t> write_add, std::list<float> data) {
+//  std::list<std::list<float>> retList;
+//  std::list<uint8_t> empty_list;
+//  packetManager_.BulkCommunication(&portManager_, mIDs, empty_list, write_add, data, retList, &bear_error);
+//  return retList;
+//}
 
 /* ****************** *
  * Utility functions. *
