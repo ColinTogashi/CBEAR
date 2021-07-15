@@ -145,7 +145,12 @@ class BEAR {
 
   std::vector<std::vector<float>> BulkRead(std::vector<uint8_t> mIDs, std::vector<uint8_t> read_add);
 
-//  void BulkWrite(std::list<uint8_t> mIDs, std::list<uint8_t> write_add, std::list<float> data);
+  bool BulkWrite(std::vector<uint8_t> mIDs, std::vector<uint8_t> write_add, const std::vector<std::vector<float>>& data);
+
+  std::vector<std::vector<float>> BulkReadWrite(std::vector<uint8_t> mIDs,
+                                                std::vector<uint8_t> read_add,
+                                                std::vector<uint8_t> write_add,
+                                                std::vector<std::vector<float>> data);
 
   /* ****************** *
    * Utility functions. *

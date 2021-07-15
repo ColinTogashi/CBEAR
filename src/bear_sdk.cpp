@@ -286,20 +286,61 @@ uint32_t BEAR::GetPackedIqAndTemps(uint8_t mID) {
 std::vector<std::vector<float>> BEAR::BulkRead(std::vector<uint8_t> mIDs, std::vector<uint8_t> read_add) {
   std::vector<std::vector<float>> ret_vec;
   std::vector<uint8_t> empty_vec;
-  std::vector<float> empty_vec_float;
-//  if (packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_vec, empty_vec, &bear_error)
-//      != COMM_SUCCESS)
-//    ret_vec = {RET_ERR};
-  packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_vec, empty_vec_float, ret_vec, &bear_error);
+  std::vector<std::vector<uint32_t>> empty_vec_uint32;
+  packetManager_.BulkCommunication(&portManager_, mIDs, read_add, empty_vec, empty_vec_uint32, ret_vec, &bear_error);
   return ret_vec;
 }
 
-//void BEAR::BulkWrite(std::list<uint8_t> mIDs, std::list<uint8_t> write_add, std::list<float> data) {
-//  std::list<std::list<float>> retList;
-//  std::list<uint8_t> empty_list;
-//  packetManager_.BulkCommunication(&portManager_, mIDs, empty_list, write_add, data, retList, &bear_error);
-//  return retList;
-//}
+bool BEAR::BulkWrite(std::vector<uint8_t> mIDs,
+                     std::vector<uint8_t> write_add,
+                     const std::vector<std::vector<float>> &data) {
+  std::vector<std::vector<float>> empty_ret_vec;
+  std::vector<uint8_t> empty_uint;
+  std::vector<std::vector<uint32_t>> data_uint32;
+  std::vector<uint32_t> data_uint32_i;
+  for (auto const &outer : data) {
+    for (auto const &inner : outer) {
+      data_uint32_i.push_back(floatToUint32(inner));
+    }
+    data_uint32.push_back(data_uint32_i);
+    data_uint32_i.erase(data_uint32_i.begin(), data_uint32_i.end());
+  }
+  if (packetManager_.BulkCommunication(&portManager_,
+                                       mIDs,
+                                       empty_uint,
+                                       write_add,
+                                       data_uint32,
+                                       empty_ret_vec,
+                                       &bear_error) == COMM_SUCCESS)
+    return true;
+  return false;
+}
+
+std::vector<std::vector<float>> BEAR::BulkReadWrite(std::vector<uint8_t> mIDs,
+                                                    std::vector<uint8_t> read_add,
+                                                    std::vector<uint8_t> write_add,
+                                                    std::vector<std::vector<float>> data) {
+  std::vector<std::vector<float>> ret_vec;
+
+  std::vector<std::vector<uint32_t>> data_uint32;
+  std::vector<uint32_t> data_uint32_i;
+  for (auto const &outer : data) {
+    for (auto const &inner : outer) {
+      data_uint32_i.push_back(floatToUint32(inner));
+    }
+    data_uint32.push_back(data_uint32_i);
+    data_uint32_i.erase(data_uint32_i.begin(), data_uint32_i.end());
+  }
+
+  packetManager_.BulkCommunication(&portManager_,
+                                   mIDs,
+                                   read_add,
+                                   write_add,
+                                   data_uint32,
+                                   ret_vec,
+                                   &bear_error);
+  return ret_vec;
+}
 
 /* ****************** *
  * Utility functions. *
