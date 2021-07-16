@@ -98,6 +98,8 @@ int main(int argc, char *argv[]) {
   using std::chrono::duration;
   using std::chrono::milliseconds;
 
+  auto time_start = high_resolution_clock::now();
+
   /*
   loop_time_stats l("stats_artemis_all_motors.txt",loop_time_stats::output_mode::fileout_only);
   for (int idx = 0; idx < 100000; idx++) {
@@ -215,6 +217,7 @@ int main(int argc, char *argv[]) {
 //    std::cout << "Present Position: " << ret_val << std::endl;
     std::cout << "Elapsed Time in ms:\t" << ms_double.count() << std::endl;
     std::cout << "Frequency:\t\t" << freq << std::endl;
+    std::cout << "Run Time [s]: \t\t" << (t2-time_start).count()/1000000000. << std::endl;
     std::cout << "--------------------" << std::endl;
 //    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     std::cout << "\033[2J\033[1;1H";
