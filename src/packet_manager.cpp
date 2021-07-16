@@ -25,7 +25,8 @@
 #define PKT_BULK_N_STAT_RW  6
 #define PKT_BULK_READ_REG_0 7
 
-#define MAX_TICKER_COUNT    200
+//#define MAX_TICKER_COUNT    400 // ret 2
+//#define MAX_TICKER_COUNT    500 // ret 3
 
 // Convenient Endian macros
 #define GEN_MAKEWORD(a, b)  ((uint16_t)(((uint8_t)(((uint64_t)(a)) & 0xff)) | ((uint16_t)((uint8_t)(((uint64_t)(b)) & 0xff))) << 8))
@@ -194,6 +195,7 @@ int PacketManager::ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t
   uint8_t rx_len = 0;
   uint8_t wait_len = 4; // [HEADER0, HEADER1, ID, LENGTH, ..., ...]
 
+  int ticker_initial = 0;
   while (true) {
     rx_len += port->ReadPort(&packet[rx_len], wait_len - rx_len);
 
@@ -207,6 +209,11 @@ int PacketManager::ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t
       }
 
       if (idx == 0) {
+        // Re-calculate the length of the reading packet if the amount of packets to wait for doesn't match
+        if (wait_len != (packet[PKT_LENGTH] + PKT_LENGTH + 1)*num_motors){
+          wait_len = (packet[PKT_LENGTH] + PKT_LENGTH + 1)*num_motors;
+          continue;
+        }
         break;
       } else {
         for (uint16_t s = 0; s < rx_len - idx; s++)
@@ -214,23 +221,30 @@ int PacketManager::ReadBulkPacket(PortManager *port, uint8_t num_motors, uint8_t
         rx_len -= idx;
       }
     }
+
+//    ++ticker_initial;
+//    if (ticker_initial > MAX_TICKER_COUNT) {
+//      port->in_use_ = false;
+////      std::cout << "Fail and leaving for now!" << std::endl;
+//      return COMM_RX_FAIL;
+//    }
   }
 
-  uint8_t len_single_pkt = packet[PKT_LENGTH];
-  uint8_t len_total_pkt =
-      PKT_LENGTH + 1 + len_single_pkt + (4 + len_single_pkt) * (num_motors - 1); // remaining incoming packets
-
-  int ticker = 0;
-  while (true) {
-    rx_len += port->ReadPort(&packet[rx_len], len_total_pkt - rx_len);
-    if (rx_len >= len_total_pkt)
-      break;
-    ++ticker;
-    if (ticker > MAX_TICKER_COUNT) {
-      port->in_use_ = false;
-      return COMM_RX_FAIL;
-    }
-  }
+//  uint8_t len_single_pkt = packet[PKT_LENGTH];
+//  uint8_t len_total_pkt =
+//      PKT_LENGTH + 1 + len_single_pkt + (4 + len_single_pkt) * (num_motors - 1); // remaining incoming packets
+//
+//  int ticker_remaining = 0;
+//  while (true) {
+//    rx_len += port->ReadPort(&packet[rx_len], len_total_pkt - rx_len);
+//    if (rx_len >= len_total_pkt)
+//      break;
+//    ++ticker_remaining;
+//    if (ticker_remaining > MAX_TICKER_COUNT) {
+//      port->in_use_ = false;
+//      return COMM_RX_FAIL;
+//    }
+//  }
 
   port->in_use_ = false;
   return COMM_SUCCESS;
@@ -644,7 +658,7 @@ int PacketManager::BulkCommunication(PortManager *port,
 //      port->ClearIOPort();
       pkt_rx = (uint8_t *) malloc(RX_PKT_MAX_LEN);
       result = WritePacket(port, pkt_tx);
-      std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+      std::this_thread::sleep_for(std::chrono::nanoseconds(1000));
       result = ReadBulkPacket(port, num_motors, pkt_rx);
       if (result == COMM_SUCCESS)
         break;

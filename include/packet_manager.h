@@ -16,7 +16,7 @@
 #define COMM_RX_FAIL -1002
 #define COMM_RX_CORRUPT -1003
 
-#define MAX_COMM_ATTEMPT 10
+#define MAX_COMM_ATTEMPT 5
 
 #define INST_PING 0x01
 #define INST_READ_STAT 0x02
