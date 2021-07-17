@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
   // */
 
   /*
-  loop_time_stats l("stats_artemis_all_motors.txt",loop_time_stats::output_mode::fileout_only);
+  loop_time_stats l("stats_artemis_all_motors_no_print.txt",loop_time_stats::output_mode::fileout_only);
 
   std::vector<uint8_t> mIDs{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 65, 66};
   std::vector<uint8_t> write_add{bear_macro::GOAL_VELOCITY, bear_macro::GOAL_POSITION};
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]) {
 
   for (int idx = 0; idx < 100000; idx++) {
     l.loop_starting_point();
-    auto t1 = high_resolution_clock::now();
+//    auto t1 = high_resolution_clock::now();
 
     std::vector<std::vector<float>> data{{0.3, 0.5},
                                          {0.6, 0.7},
@@ -147,14 +147,14 @@ int main(int argc, char *argv[]) {
     std::vector<std::vector<float>> ret_vec_rw;
     ret_vec_rw = bear_handle.BulkReadWrite(mIDs, read_add, write_add, data);
 
-    auto t2 = high_resolution_clock::now();
-    duration<double, std::milli> ms_double = t2 - t1;
-    float freq;
-    freq = 1000 / ms_double.count();
-
-    std::cout << "--------------------" << std::endl;
-    std::cout << "Elapsed Time in ms: " << ms_double.count() << std::endl;
-    std::cout << "Frequency: " << freq << std::endl;
+//    auto t2 = high_resolution_clock::now();
+//    duration<double, std::milli> ms_double = t2 - t1;
+//    float freq;
+//    freq = 1000 / ms_double.count();
+//
+//    std::cout << "--------------------" << std::endl;
+//    std::cout << "Elapsed Time in ms: " << ms_double.count() << std::endl;
+//    std::cout << "Frequency: " << freq << std::endl;
   }
   l.store_loop_time_stats();
 //   */
