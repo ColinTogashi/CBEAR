@@ -32,7 +32,7 @@
 #define CR_LIMIT_POS_MAX            23
 #define CR_MIN_VOLTAGE              24
 #define CR_MAX_VOLTAGE              25
-#define CR_LOW_VOLTAGE_WARNING      26
+#define CR_WATCHDOG_TIMEOUT         26
 #define CR_TEMP_LIMIT_LOW           27
 #define CR_TEMP_LIMIT_HIGH          28
 
@@ -146,6 +146,294 @@ float BEAR::GetPGainId(uint8_t mID) {
 
 bool BEAR::SetPGainId(uint8_t mID, float val) {
   return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_P_GAIN_ID, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetIGainId(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_I_GAIN_ID, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetIGainId(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_I_GAIN_ID, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetDGainId(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_D_GAIN_ID, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetDGainId(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_D_GAIN_ID, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetPGainIq(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_P_GAIN_IQ, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetPGainIq(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_P_GAIN_IQ, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetIGainIq(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_I_GAIN_IQ, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetIGainIq(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_I_GAIN_IQ, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetDGainIq(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_D_GAIN_IQ, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetDGainIq(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_D_GAIN_IQ, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetPGainVelocity(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_P_GAIN_VEL, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetPGainVelocity(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_P_GAIN_VEL, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetIGainVelocity(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_I_GAIN_VEL, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetIGainVelocity(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_I_GAIN_VEL, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetDGainVelocity(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_D_GAIN_VEL, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetDGainVelocity(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_D_GAIN_VEL, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetPGainPosition(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_P_GAIN_POS, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetPGainPosition(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_P_GAIN_POS, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetIGainPosition(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_I_GAIN_POS, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetIGainPosition(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_I_GAIN_POS, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetDGainPosition(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_D_GAIN_POS, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetDGainPosition(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_D_GAIN_POS, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetPGainDirectForce(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_P_GAIN_FORCE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetPGainDirectForce(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_P_GAIN_FORCE, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetIGainDirectForce(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_I_GAIN_FORCE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetIGainDirectForce(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_I_GAIN_FORCE, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetDGainDirectForce(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_D_GAIN_FORCE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetDGainDirectForce(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_D_GAIN_FORCE, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetLimitAccMax(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_LIMIT_ID_MAX, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetLimitAccMax(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_LIMIT_ID_MAX, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetLimitIMax(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_LIMIT_IQ_MAX, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetLimitIMax(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_LIMIT_IQ_MAX, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetVelocityMax(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_LIMIT_VEL_MAX, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetVelocityMax(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_LIMIT_VEL_MAX, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetLimitPositionMin(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_LIMIT_POS_MIN, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetLimitPositionMin(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_LIMIT_POS_MIN, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetLimitPositionMax(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_LIMIT_POS_MAX, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetLimitPositionMax(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_LIMIT_POS_MAX, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetMinVoltage(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_MIN_VOLTAGE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetMinVoltage(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_MIN_VOLTAGE, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetMaxVoltage(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_MAX_VOLTAGE, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetMaxVoltage(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_MAX_VOLTAGE, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+uint32_t BEAR::GetWatchdogTimeout(uint8_t mID) {
+  uint32_t retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_WATCHDOG_TIMEOUT, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetWatchdogTimeout(uint8_t mID, uint32_t val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_WATCHDOG_TIMEOUT, val, &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetTemperatureLimitLow(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_TEMP_LIMIT_LOW, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetTemperatureLimitLow(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_TEMP_LIMIT_LOW, floatToUint32(val), &bear_error)
+      == COMM_SUCCESS);
+}
+
+float BEAR::GetTemperatureLimitHigh(uint8_t mID) {
+  float retVal;
+  if (packetManager_.ReadConfigRegister(&portManager_, mID, CR_TEMP_LIMIT_HIGH, &retVal, &bear_error) != COMM_SUCCESS)
+    retVal = RET_ERR;
+  return retVal;
+}
+
+bool BEAR::SetTemperatureLimitHigh(uint8_t mID, float val) {
+  return (packetManager_.WriteConfigRegister(&portManager_, mID, CR_TEMP_LIMIT_HIGH, floatToUint32(val), &bear_error)
       == COMM_SUCCESS);
 }
 

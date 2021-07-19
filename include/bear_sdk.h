@@ -100,10 +100,32 @@ class BEAR {
   float GetLimitAccMax(uint8_t mID);
   bool SetLimitAccMax(uint8_t mID, float val);
 
-//    int setDGainId() {};
-//    template<typename First, typename Second, typename ... Args>
-//    int setDGainId(First mID, Second val, Args &... rest);
+  float GetLimitIMax(uint8_t mID);
+  bool SetLimitIMax(uint8_t mID, float val);
 
+  float GetVelocityMax(uint8_t mID);
+  bool SetVelocityMax(uint8_t mID, float val);
+
+  float GetLimitPositionMin(uint8_t mID);
+  bool SetLimitPositionMin(uint8_t mID, float val);
+
+  float GetLimitPositionMax(uint8_t mID);
+  bool SetLimitPositionMax(uint8_t mID, float val);
+
+  float GetMinVoltage(uint8_t mID);
+  bool SetMinVoltage(uint8_t mID, float val);
+
+  float GetMaxVoltage(uint8_t mID);
+  bool SetMaxVoltage(uint8_t mID, float val);
+
+  uint32_t GetWatchdogTimeout(uint8_t mID);
+  bool SetWatchdogTimeout(uint8_t mID, uint32_t val);
+
+  float GetTemperatureLimitLow(uint8_t mID);
+  bool SetTemperatureLimitLow(uint8_t mID, float val);
+
+  float GetTemperatureLimitHigh(uint8_t mID);
+  bool SetTemperatureLimitHigh(uint8_t mID, float val);
 
   /* ************************************* *
    * Getters/Setters for status registers. *
@@ -145,7 +167,9 @@ class BEAR {
 
   std::vector<std::vector<float>> BulkRead(std::vector<uint8_t> mIDs, std::vector<uint8_t> read_add);
 
-  bool BulkWrite(std::vector<uint8_t> mIDs, std::vector<uint8_t> write_add, const std::vector<std::vector<float>>& data);
+  bool BulkWrite(std::vector<uint8_t> mIDs,
+                 std::vector<uint8_t> write_add,
+                 const std::vector<std::vector<float>> &data);
 
   std::vector<std::vector<float>> BulkReadWrite(std::vector<uint8_t> mIDs,
                                                 std::vector<uint8_t> read_add,
