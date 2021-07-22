@@ -687,7 +687,7 @@ int PacketManager::BulkCommunication(PortManager *port,
       uint8_t err_single = pkt_rx[m_offset + PKT_ERROR];
       if (err_single != 128) { // if not normal, cut the list short
         ret_single.push_back(err_single);
-        std::cout << "Error in the return packet!" << std::endl;
+        std::cout << "Error in the return packet: " << int(err_single) << std::endl;
         continue;
       }
 
