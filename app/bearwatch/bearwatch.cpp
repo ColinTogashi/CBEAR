@@ -165,16 +165,16 @@ int main(int argc, char *argv[]) {
     std::vector<uint8_t> mIDs{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 65, 66};
     std::vector<uint8_t> write_add{bear_macro::GOAL_VELOCITY, bear_macro::GOAL_POSITION};
     std::vector<uint8_t> read_add{bear_macro::PRESENT_POSITION, bear_macro::PRESENT_VELOCITY, bear_macro::PRESENT_IQ};
-    std::vector<std::vector<float>> data{{0.3, 0.5},
-                                         {0.6, 0.7},
-                                         {0.3, 0.4},
-                                         {0.5, 0.6},
-                                         {0.3, 0.4},
-                                         {0.2, 0.2},
-                                         {0.4, 0.2},
-                                         {0.6, 0.5},
-                                         {0.4, 0.7},
-                                         {0.4, 0.8},
+    std::vector<std::vector<float>> data{{0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
+                                         {0.0, 0.0},
                                          {0.0, 0.0},
                                          {0.0, 0.0}};
 
