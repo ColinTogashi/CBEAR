@@ -1,5 +1,5 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](http://www.repostatus.org/badges/latest/active.svg)](http://www.repostatus.org/#active)
-[![license](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/aminsung/CBEAR2/blob/master/LICENSE)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/aminsung/CBEAR2/blob/master/LICENSE)
 
 # CBEAR
 CBEAR is a C++ SDK to communicate with the BEAR actuators developed in RoMeLa.
