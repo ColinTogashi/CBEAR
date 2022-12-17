@@ -1,7 +1,7 @@
 //
 // Created by msahn on 3/11/21.
 //
-
+#include <iostream>
 #include <string>
 #include "bear_sdk.h"
 
